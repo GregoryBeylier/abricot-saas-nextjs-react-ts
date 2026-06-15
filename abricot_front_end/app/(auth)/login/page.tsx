@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { useMutation } from '@tanstack/react-query'
 
 const schema = z.object({
   email: z.email(),
@@ -26,15 +27,33 @@ export default function SignIn() {
     resolver: zodResolver(schema),
   })
 
+  // La function useMutation permet de gerer les données de connexion permet d'envoyer les requettes de connexion a l'api
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: async (data: Input) => {
+      const res = await fetch('http://localhost:8000/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      return await res.json()
+    },
+    onSuccess: (data) => {
+      console.log('succès:', data)
+    },
+    onError: (error) => {
+      console.log('erreur:', error)
+    },
+  })
+
   const onSubmit = (data: Input) => {
-    console.log(data)
+    mutate(data)
   }
 
   return (
     //    div global
     <div className="flex h-screen ">
       {/* section formulaire de connexion */}
-      <div className="w-full md:w-2/5 bg-gray-50 flex flex-col items-center justify-between p-10">
+      <div className="w-full md:w-2/5 md:min-w-[300px] bg-gray-50 flex flex-col items-center justify-between p-10">
         <Image
           src={logo}
           alt="logo"
@@ -94,13 +113,8 @@ export default function SignIn() {
 
       {/* section image de connexion */}
 
-      <div className="w-3/5 relative">
-        <Image
-          src={picture}
-          alt="photo"
-          fill
-          className="object-cover hidden md:block"
-        />
+      <div className="w-3/5 relative hidden md:block">
+        <Image src={picture} alt="photo" fill className="object-cover" />
       </div>
     </div>
   )
