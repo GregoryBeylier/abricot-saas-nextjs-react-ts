@@ -12,20 +12,23 @@ import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 
 const schema = z.object({
-  email: z.email(),
-  password: z.string().min(1),
+  email: z.email('Adresse email invalide ou incorecte'),
+  password: z.string().min(8, 'Le mot de passe est incorect'),
 })
 
 type Input = z.infer<typeof schema>
 
 // cette fonction est un composant React qui représente la page de connexion (SignIn) d'une application. Elle utilise Tailwind CSS pour le style et Next.js pour la gestion des images. Le composant est structuré en deux parties principales : une section de formulaire de connexion et une section d'image.
 export default function SignIn() {
+  // useForm permet de gérer la validation, les valeurs des champs et les erreurs du formulaire
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Input>({
     resolver: zodResolver(schema),
+    // mode: onTuched permet de valider les champs du formulaire lorsque l'utilisateur quitte le champ (blur)
+    mode: 'onTouched',
   })
 
   // useRouter est un hook permattant de naviguer entre les pages
@@ -77,6 +80,9 @@ export default function SignIn() {
             type="email"
             className="bg-white h-12"
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email?.message}</p>
+          )}
         </div>
 
         <div className="max-w-xs mx-auto w-full flex flex-col gap-3">
@@ -86,6 +92,9 @@ export default function SignIn() {
             type="password"
             className="bg-white h-12"
           />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password?.message}</p>
+          )}
         </div>
 
         <Button

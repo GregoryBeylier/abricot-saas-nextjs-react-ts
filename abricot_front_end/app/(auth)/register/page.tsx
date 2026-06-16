@@ -12,20 +12,25 @@ import { useMutation } from '@tanstack/react-query'
 import Cookie from 'js-cookie'
 
 const schema = z.object({
-  email: z.email(),
-  password: z.string().min(1),
+  email: z.email('Adresse email déja existance ou incorecte'),
+  password: z
+    .string()
+    .min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
 })
 
 type Input = z.infer<typeof schema>
 
 // cette fonction represente la  page d'inscription
 export default function Register() {
+  // useForm permet de gérer la validation, les valeurs des champs et les erreurs du formulaire
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Input>({
     resolver: zodResolver(schema),
+    // mode: onTuched permet de valider les champs du formulaire lorsque l'utilisateur quitte le champ (blur)
+    mode: 'onTouched',
   })
 
   // useRouter est un hook permattant de naviguer entre les pages
@@ -77,6 +82,9 @@ export default function Register() {
             type="email"
             className="bg-white h-12"
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email?.message}</p>
+          )}
         </div>
 
         <div className="max-w-xs mx-auto w-full flex flex-col gap-3">
@@ -86,6 +94,9 @@ export default function Register() {
             type="password"
             className="bg-white h-12"
           />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password?.message}</p>
+          )}
         </div>
 
         <Button
