@@ -10,9 +10,10 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 const schema = z.object({
-  email: z.email('Adresse email invalide ou incorecte'),
+  email: z.email('Adresse email incorecte'),
   password: z.string().min(8, 'Le mot de passe est incorect'),
 })
 
@@ -36,6 +37,7 @@ export default function SignIn() {
   // Cookie est une librairie qui permet de gerer les cookies dans le navigateur
   const Cookies = Cookie.withAttributes({ path: '/' })
 
+  const [erreur, setErreur] = useState('')
   // La function useMutation permet de gerer les données de connexion permet d'envoyer les requettes de connexion a l'api
   const { mutate, isPending, isError } = useMutation({
     mutationFn: async (data: Input) => {
@@ -48,9 +50,14 @@ export default function SignIn() {
     },
     // onSucess est une fonction est appeler lorque la connexion est reussie et permet de sotcker le toekn
     onSuccess: (data) => {
-      console.log('succès:', data)
-      Cookies.set('token', data.data.token)
-      router.push('/dashboard')
+      // si la reponse de l'api est un echec on affiche le message d'erreur
+      if (data.success === false) {
+        setErreur(data.message)
+      } else {
+        console.log('succès:', data)
+        Cookies.set('token', data.data.token)
+        router.push('/dashboard')
+      }
     },
     // onError est une fonction lorque la connexion echoue
     onError: (error) => {
@@ -104,6 +111,7 @@ export default function SignIn() {
         >
           Se connecter
         </Button>
+        {erreur && <p className="text-red-500 text-sm">{erreur}</p>}
 
         <a
           href="#"
