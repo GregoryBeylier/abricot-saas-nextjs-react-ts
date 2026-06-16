@@ -1,8 +1,7 @@
 'use client'
 import Cookie from 'js-cookie'
 import picture from '../../../public/SingInLogo.jpg'
-import logo from '../../../public/logo.svg'
-import Image from 'next/image'
+import AuthLayout from '../../../components/auth/auth-layout'
 import * as z from 'zod'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -62,72 +61,55 @@ export default function SignIn() {
   }
 
   return (
-    //    div global
-    <div className="flex h-screen ">
-      {/* section formulaire de connexion */}
-      <div className="w-full md:w-2/5 md:min-w-[300px] bg-gray-50 flex flex-col items-center justify-between p-10">
-        <Image
-          src={logo}
-          alt="logo"
-          width={200}
-          height={50}
-          className="w-[200px] h-auto mt-6 md:mt-10 mb-8"
-        />
-        <form
-          className="w-full max-w-sm flex flex-col gap-6 mb-8"
-          onSubmit={handleSubmit(onSubmit)}
+    <AuthLayout image={picture}>
+      <form
+        className="w-full max-w-sm flex flex-col gap-6 mb-8"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <h1 className="text-3xl font-bold text-[var(--color-abricot)] text-center mt-8 md:mt-12 ">
+          Connexion
+        </h1>
+
+        <div className="max-w-xs mx-auto w-full flex flex-col gap-3">
+          <Label>Email</Label>
+          <Input
+            {...register('email')}
+            type="email"
+            className="bg-white h-12"
+          />
+        </div>
+
+        <div className="max-w-xs mx-auto w-full flex flex-col gap-3">
+          <Label>Mot de passe</Label>
+          <Input
+            {...register('password')}
+            type="password"
+            className="bg-white h-12"
+          />
+        </div>
+
+        <Button
+          className="w-3/4 mx-auto h-14 rounded-lg"
+          type="submit"
+          onClick={() => console.log('errors:', errors)}
         >
-          <h1 className="text-3xl font-bold text-[var(--color-abricot)] text-center mt-8 md:mt-12 ">
-            Connexion
-          </h1>
+          Se connecter
+        </Button>
 
-          <div className="max-w-xs mx-auto w-full flex flex-col gap-3">
-            <Label>Email</Label>
-            <Input
-              {...register('email')}
-              type="email"
-              className="bg-white h-12"
-            />
-          </div>
+        <a
+          href="#"
+          className="text-[var(--color-abricot)] text-sm underline text-center "
+        >
+          Mot de passe oublié?
+        </a>
+      </form>
 
-          <div className="max-w-xs mx-auto w-full flex flex-col gap-3">
-            <Label>Mot de passe</Label>
-            <Input
-              {...register('password')}
-              type="password"
-              className="bg-white h-12"
-            />
-          </div>
-
-          <Button
-            className="w-3/4 mx-auto h-14 rounded-lg"
-            type="submit"
-            onClick={() => console.log('errors:', errors)}
-          >
-            Se connecter
-          </Button>
-
-          <a
-            href="#"
-            className="text-[var(--color-abricot)] text-sm underline text-center "
-          >
-            Mot de passe oublié?
-          </a>
-        </form>
-
-        <span className="whitespace-nowrap">
-          Pas encore de compte ?{' '}
-          <a href="/register" className="text-[var(--color-abricot)] underline">
-            Créer un compte
-          </a>
-        </span>
-      </div>
-
-      {/* section image de connexion */}
-
-      <div className="w-3/5 relative hidden md:block">
-        <Image src={picture} alt="photo" fill className="object-cover" />
-      </div>
-    </div>
+      <span className="whitespace-nowrap">
+        Pas encore de compte ?{' '}
+        <a href="/register" className="text-[var(--color-abricot)] underline">
+          Créer un compte
+        </a>
+      </span>
+    </AuthLayout>
   )
 }
