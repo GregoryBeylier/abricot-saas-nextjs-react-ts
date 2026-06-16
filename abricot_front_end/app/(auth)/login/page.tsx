@@ -1,4 +1,5 @@
 'use client'
+import Cookie from 'js-cookie'
 import picture from '../../../public/SingInLogo.jpg'
 import logo from '../../../public/logo.svg'
 import Image from 'next/image'
@@ -9,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { useMutation } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 
 const schema = z.object({
   email: z.email(),
@@ -27,6 +29,11 @@ export default function SignIn() {
     resolver: zodResolver(schema),
   })
 
+  // useRouter est un hook permattant de naviguer entre les pages
+  const router = useRouter()
+  // Cookie est une librairie qui permet de gerer les cookies dans le navigateur
+  const Cookies = Cookie.withAttributes({ path: '/' })
+
   // La function useMutation permet de gerer les données de connexion permet d'envoyer les requettes de connexion a l'api
   const { mutate, isPending, isError } = useMutation({
     mutationFn: async (data: Input) => {
@@ -37,14 +44,19 @@ export default function SignIn() {
       })
       return await res.json()
     },
+    // onSucess est une fonction est appeler lorque la connexion est reussie et permet de sotcker le toekn
     onSuccess: (data) => {
       console.log('succès:', data)
+      Cookies.set('token', data.data.token)
+      router.push('/dashboard')
     },
+    // onError est une fonction lorque la connexion echoue
     onError: (error) => {
       console.log('erreur:', error)
     },
   })
 
+  // OnSumit permet d'envoyer les donnés saisies dans le formulaire de connexion a l'api
   const onSubmit = (data: Input) => {
     mutate(data)
   }
