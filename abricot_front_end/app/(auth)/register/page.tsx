@@ -2,7 +2,7 @@
 import * as z from 'zod'
 import picture from '../../../public/ResgisterLogo.jpg'
 import AuthLayout from '../../../components/auth/auth-layout'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,7 +16,11 @@ const schema = z.object({
   email: z.email('Adresse email incorecte'),
   password: z
     .string()
-    .min(8, 'Le mot de passe doit contenir au moins 8 caractères'),
+    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+    .regex(/[A-Z]/, 'Au moins une lettre majuscule')
+    .regex(/[a-z]/, 'Au moins une lettre minuscule')
+    .regex(/[0-9]/, 'Au moins un chiffre')
+    .regex(/[@$!%*?&]/, 'Au moins un caractère spécial'),
 })
 
 type Input = z.infer<typeof schema>
@@ -53,8 +57,9 @@ export default function Register() {
     },
     // onSucess est une fonction est appeler lorque la connexion est reussie et permet de sotcker le toekn
     onSuccess: (data) => {
+      // si la reponse de l'api est un echec on affiche le message d'erreur
       if (data.success === false) {
-        setErreur(data.message)
+        setErreur(data.data.errors[0].message)
       } else {
         console.log('succès:', data)
         Cookies.set('token', data.data.token)
@@ -62,8 +67,8 @@ export default function Register() {
       }
     },
     // onError est une fonction lorque la connexion echoue
-    onError: (error) => {
-      console.log('erreur:', error)
+    onError: () => {
+      setErreur('Une erreur est survenue, veuillez réessayer')
     },
   })
 
@@ -113,6 +118,7 @@ export default function Register() {
         >
           S’inscrire
         </Button>
+        {/* Affiche le message d'erreur retourné par l'API */}
         {erreur && <p className="text-red-500 text-sm">{erreur}</p>}
       </form>
 

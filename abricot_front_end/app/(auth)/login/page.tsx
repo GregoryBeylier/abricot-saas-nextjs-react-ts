@@ -3,7 +3,7 @@ import Cookie from 'js-cookie'
 import picture from '../../../public/SingInLogo.jpg'
 import AuthLayout from '../../../components/auth/auth-layout'
 import * as z from 'zod'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,8 +13,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 const schema = z.object({
-  email: z.email('Adresse email incorecte'),
-  password: z.string().min(8, 'Le mot de passe est incorect'),
+  email: z.string().min(1, 'Email requis').email('Adresse email invalide'),
+  password: z.string().min(1, 'Le mot de passe est requis'),
 })
 
 type Input = z.infer<typeof schema>
@@ -60,8 +60,8 @@ export default function SignIn() {
       }
     },
     // onError est une fonction lorque la connexion echoue
-    onError: (error) => {
-      console.log('erreur:', error)
+    onError: () => {
+      setErreur('Une erreur est survenue, veuillez réessayer')
     },
   })
 
@@ -111,6 +111,7 @@ export default function SignIn() {
         >
           Se connecter
         </Button>
+        {/* Affiche le message d'erreur retourné par l'API */}
         {erreur && <p className="text-red-500 text-sm">{erreur}</p>}
 
         <a
