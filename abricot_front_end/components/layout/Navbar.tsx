@@ -2,33 +2,22 @@
 import { useQuery } from '@tanstack/react-query'
 import logo from '@/public/logo.svg'
 import Image from 'next/image'
-import Cookie from 'js-cookie'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import iconDashboard from '@/public/dashboard.svg'
 import iconProjects from '@/public/projets.svg'
+import { fetchProfile } from '@/lib/api'
 
 export default function Header() {
-  // récupere le token du cookie
-  const token = Cookie.get('token')
-
   // uesePathname est un hook qui permet de recuperer le chemin de la page actuelle
   const pathname = usePathname()
 
   // appel de l'api pour recuperer les informations de l'utilisateur connecté
   const { data, isLoading, isError } = useQuery({
     queryKey: ['user'],
-    queryFn: async () => {
-      const response = await fetch('http://localhost:8000/auth/profile', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      return await response.json()
-    },
+    queryFn: fetchProfile,
   })
-  console.log(data)
+
   return (
     <nav className="flex items-center justify-between px-[100px] py-[8px] h-[94px] bg-white w-full">
       <div className="flex items-center gap-4">
