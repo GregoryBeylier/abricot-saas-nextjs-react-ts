@@ -1,7 +1,7 @@
 'use client'
 import * as z from 'zod'
-import picture from '../../../public/ResgisterLogo.jpg'
-import AuthLayout from '../../../components/auth/auth-layout'
+import picture from '@/public/ResgisterLogo.jpg'
+import AuthLayout from '@/components/auth/auth-layout'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
@@ -119,7 +119,9 @@ export default function Register() {
           S’inscrire
         </Button>
         {/* Affiche le message d'erreur retourné par l'API */}
-        {erreur && <p className="text-red-500 text-sm">{erreur}</p>}
+        {erreur && (
+          <p className="text-red-500 text-sm w-full text-center">{erreur}</p>
+        )}
       </form>
 
       <span className="whitespace-nowrap">

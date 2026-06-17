@@ -1,7 +1,7 @@
 'use client'
 import Cookie from 'js-cookie'
-import picture from '../../../public/SingInLogo.jpg'
-import AuthLayout from '../../../components/auth/auth-layout'
+import picture from '@/public/SingInLogo.jpg'
+import AuthLayout from '@/components/auth/auth-layout'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -112,7 +112,9 @@ export default function SignIn() {
           Se connecter
         </Button>
         {/* Affiche le message d'erreur retourné par l'API */}
-        {erreur && <p className="text-red-500 text-sm">{erreur}</p>}
+        {erreur && (
+          <p className="text-red-500 text-sm w-full text-center">{erreur}</p>
+        )}
 
         <a
           href="#"
