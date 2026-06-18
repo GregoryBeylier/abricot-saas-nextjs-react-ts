@@ -24,8 +24,8 @@ export default function VueKanban() {
   const doneTask = tasks?.filter((task) => task.status === 'DONE') || []
 
   return (
-    <div className="flex gap-4 ">
-      <div className="bg-white rounded-xl p-6 w-1/3">
+    <div className="flex gap-4 overflow-x-auto min-w-[1100px]">
+      <div className="bg-white rounded-xl p-6 w-1/3 min-w-[280px] overflow-y-auto max-h-[600px]">
         <div className="flex items-center gap-2 mb-8 pl-1 pt-5">
           <p className="font-semibold">À faire</p>
           <span className="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-sm">
@@ -38,7 +38,7 @@ export default function VueKanban() {
           </div>
         ))}
       </div>
-      <div className="bg-white rounded-xl p-6 w-1/3">
+      <div className="bg-white rounded-xl p-6 w-1/3 min-w-[280px] overflow-y-auto max-h-[600px]">
         <div className="flex items-center gap-2 mb-8 pl-1 pt-5">
           <p className="font-semibold">En cours</p>
           <span className="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-sm">
@@ -51,7 +51,7 @@ export default function VueKanban() {
           </div>
         ))}
       </div>
-      <div className="bg-white rounded-xl p-6 w-1/3">
+      <div className="bg-white rounded-xl p-6 w-1/3 min-w-[280px] overflow-y-auto max-h-[600px]">
         <div className="flex items-center gap-2 mb-8 pl-1 pt-5">
           <p className="font-semibold">Terminée</p>
           <span className="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-sm">

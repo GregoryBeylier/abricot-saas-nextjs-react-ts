@@ -33,20 +33,20 @@ export default function DashboardPage() {
   const [vue, setVue] = useState('liste')
   console.log(vue)
   return (
-    <div className="bg-[#F9FAFB] px-[112px] pt-[40px] pb-[50px]">
-      <div className="flex justify-between items-center mb-6">
-        <div className="mt-[89px]">
+    <div className="bg-[#F9FAFB] px-4 lg:px-[112px] pt-[40px] pb-[50px]">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div className="mt-[40px] lg:mt-[89px]">
           <h1 className="text-2xl font-semibold">Tableau de bord</h1>
           <p>Bonjour {name}, voici un aperçu de vos projets et tâches</p>
         </div>
-        <Button className="h-[50px] px-[30px] rounded-[10px] text-base font-normal mt-[89px]">
+        <Button className="h-[50px] px-[30px] rounded-[10px] text-base font-normal sm:mt-[89px]">
           + Créer un projet
         </Button>
       </div>
-      <div className="flex gap-4 mb-6 mt-[60px]">
+      <div className="flex gap-4 mb-6 mt-[30px] lg:mt-[60px]">
         <button
           onClick={() => setVue('liste')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot)] hover:bg-[#FFE8D9] transition-colors duration-500  ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot)] hover:bg-[#FFE8D9] transition-colors duration-500 ${
             vue === 'liste' ? 'bg-[#FFE8D9]' : 'bg-white'
           }`}
         >
@@ -63,7 +63,13 @@ export default function DashboardPage() {
           Kanban
         </button>
       </div>
-      {vue === 'liste' ? <VueListe /> : <VueKanban />}
+      {vue === 'liste' ? (
+        <VueListe />
+      ) : (
+        <div className="overflow-x-auto">
+          <VueKanban />
+        </div>
+      )}
     </div>
   )
 }
