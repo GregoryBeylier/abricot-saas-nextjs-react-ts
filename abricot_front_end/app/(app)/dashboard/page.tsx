@@ -46,7 +46,7 @@ export default function DashboardPage() {
       <div className="flex gap-4 mb-6 mt-[60px]">
         <button
           onClick={() => setVue('liste')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot)] ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot)] hover:bg-[#FFE8D9] transition-colors duration-500  ${
             vue === 'liste' ? 'bg-[#FFE8D9]' : 'bg-white'
           }`}
         >
@@ -55,7 +55,7 @@ export default function DashboardPage() {
         </button>
         <button
           onClick={() => setVue('kanban')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot)] ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot)] hover:bg-[#FFE8D9] transition-colors duration-500 ${
             vue === 'kanban' ? 'bg-[#FFE8D9]' : 'bg-white'
           }`}
         >

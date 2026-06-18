@@ -1,4 +1,20 @@
 import Cookie from 'js-cookie'
+import type { Status } from '@/components/ui/StatusBadge'
+
+export interface Task {
+  id: string
+  title: string
+  description: string
+  status: Status
+  dueDate: string | null
+  comments: { id: string }[]
+}
+
+export interface AssignedTasksResponse {
+  data: {
+    tasks: Task[]
+  }
+}
 
 // appel l'api pour récuperer les donées de l'utilisateur connecté
 export async function fetchProfile() {
