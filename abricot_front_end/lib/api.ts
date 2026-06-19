@@ -1,7 +1,7 @@
 import Cookie from 'js-cookie'
 import type { Status } from '@/components/ui/StatusBadge'
 
-// appel l'api pour récuperer les donées de l'utilisateur connecté
+// appel l'api GET pour récuperer les donées de l'utilisateur connecté
 export async function fetchProfile() {
   const token = Cookie.get('token')
   const response = await fetch('http://localhost:8000/auth/profile', {
@@ -30,20 +30,21 @@ export interface AssignedTasksResponse {
     tasks: Task[]
   }
 }
-
+// Projet avec ses tâches assignées — utilisé pour construire le dictionnaire { projectId: projectName }
 export interface ProjectWithTasks {
   id: string
   name: string
   tasks: Task[]
 }
 
+// Structure complète de la réponse retournée par GET
 export interface ProjectsWithTasksResponse {
   data: {
     projects: ProjectWithTasks[]
   }
 }
 
-// appel l'api pour récuperer les projets dans lesquls des tache on ete assignés
+// appel l'api GET pour récuperer les projets dans lesquls des tache on ete assignés
 export async function fetchProjectsWithTasks() {
   const token = Cookie.get('token')
   const response = await fetch(
@@ -58,7 +59,7 @@ export async function fetchProjectsWithTasks() {
   return await response.json()
 }
 
-// appel l'api pour récuperer les tache assignées de l'utilisateur connecté
+// appel l'api GET pour récuperer les tache assignées de l'utilisateur connecté
 export async function fetchAssignedTasks() {
   const token = Cookie.get('token')
   const response = await fetch(
@@ -104,10 +105,11 @@ export interface Projects {
 // Structure complète de la réponse retournée par l'endpoint GET
 export interface ProjectsResponse {
   data: {
-    projets: Projects[]
+    projects: Projects[]
   }
 }
 
+// appel Api GEt récupérer tout les projets de tulisateur connecté S
 export async function fetchProjects() {
   const token = Cookie.get('token')
   const response = await fetch('http://localhost:8000/projects', {

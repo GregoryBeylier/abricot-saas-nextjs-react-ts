@@ -10,7 +10,7 @@ import iconKanban from '@/public/kanban.svg'
 import Image from 'next/image'
 
 // interface pour typer la réponse de l'api
-interface UserProfile {
+export interface UserProfile {
   data: {
     user: {
       id: string
