@@ -1,6 +1,11 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
-import { fetchAssignedTasks, type AssignedTasksResponse } from '@/lib/api'
+import {
+  fetchAssignedTasks,
+  fetchProjectsWithTasks,
+  type AssignedTasksResponse,
+  ProjectsWithTasksResponse,
+} from '@/lib/api'
 import TaskCard from '@/components/dashboard/TaskCard'
 
 export default function VueKanban() {
@@ -9,6 +14,24 @@ export default function VueKanban() {
     queryKey: ['tasks'],
     queryFn: fetchAssignedTasks,
   })
+
+  // Utilisation de la hook useQuery pour récupérer les noms des projets
+  const { data: projectsData } = useQuery<ProjectsWithTasksResponse>({
+    queryKey: ['projcts'],
+    queryFn: fetchProjectsWithTasks,
+  })
+
+  // récupération des projets
+  const projects = projectsData?.data?.projects ?? []
+
+  // Construit un dictionnaire { projectId: projectName } pour retrouver le nom d'un projet par son id
+  const projectNames = projects.reduce<Record<string, string>>(
+    (acc, project) => {
+      acc[project.id] = project.name
+      return acc
+    },
+    {}
+  )
 
   // récupération des tâches
   const tasks = data?.data?.tasks
@@ -34,7 +57,11 @@ export default function VueKanban() {
         </div>
         {todoTask.map((task) => (
           <div key={task.id} className="border rounded-lg p-4 mb-4">
-            <TaskCard task={task} variant_style="flex-col" />
+            <TaskCard
+              task={task}
+              variant_style="flex-col"
+              projectName={projectNames[task.projectId]}
+            />
           </div>
         ))}
       </div>
@@ -47,7 +74,11 @@ export default function VueKanban() {
         </div>
         {inProgressTask.map((task) => (
           <div key={task.id} className="border rounded-lg p-4 mb-4">
-            <TaskCard task={task} variant_style="flex-col" />
+            <TaskCard
+              task={task}
+              variant_style="flex-col"
+              projectName={projectNames[task.projectId]}
+            />
           </div>
         ))}
       </div>
@@ -60,7 +91,11 @@ export default function VueKanban() {
         </div>
         {doneTask.map((task) => (
           <div key={task.id} className="border rounded-lg p-4 mb-4">
-            <TaskCard task={task} variant_style="flex-col" />
+            <TaskCard
+              task={task}
+              variant_style="flex-col"
+              projectName={projectNames[task.projectId]}
+            />
           </div>
         ))}
       </div>

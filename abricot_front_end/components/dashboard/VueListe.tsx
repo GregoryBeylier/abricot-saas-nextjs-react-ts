@@ -1,5 +1,7 @@
 'use client'
 import { fetchAssignedTasks } from '@/lib/api'
+import { fetchProjectsWithTasks } from '@/lib/api'
+import { ProjectsWithTasksResponse } from '@/lib/api'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
@@ -21,6 +23,24 @@ export default function VueListe() {
   const [search, setSearch] = useState('')
   const tasksFiltrees = tasks?.filter((task) =>
     task.title.toLowerCase().includes(search.toLowerCase())
+  )
+
+  // Utilisation de la hook useQuery pour récupérer les noms des projets
+  const { data: projectsData } = useQuery<ProjectsWithTasksResponse>({
+    queryKey: ['projcts'],
+    queryFn: fetchProjectsWithTasks,
+  })
+
+  // récupération des projets
+  const projects = projectsData?.data?.projects ?? []
+
+  // Construit un dictionnaire { projectId: projectName } pour retrouver le nom d'un projet par son id
+  const projectNames = projects.reduce<Record<string, string>>(
+    (acc, project) => {
+      acc[project.id] = project.name
+      return acc
+    },
+    {}
   )
 
   return (
@@ -48,7 +68,7 @@ export default function VueListe() {
           key={task.id}
           className="bg-white rounded-lg border px-4 lg:px-8 py-4 lg:h-[162px]"
         >
-          <TaskCard task={task} />
+          <TaskCard task={task} projectName={projectNames[task.projectId]} />
         </div>
       ))}
     </div>

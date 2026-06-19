@@ -8,9 +8,14 @@ import { Folder, Calendar, MessageSquare } from 'lucide-react'
 interface TaskCardProps {
   task: Task
   variant_style?: string
+  projectName?: string
 }
 
-export default function TaskCard({ task, variant_style }: TaskCardProps) {
+export default function TaskCard({
+  task,
+  variant_style,
+  projectName,
+}: TaskCardProps) {
   return (
     <>
       {variant_style === 'flex-col' ? (
@@ -24,7 +29,7 @@ export default function TaskCard({ task, variant_style }: TaskCardProps) {
           </p>
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Folder size={16} className="text-gray-400" fill="currentColor" />
-            <span>Nom du projet</span>
+            <span className="truncate max-w-[90px]">{projectName}</span>
             <span>|</span>
             <Calendar size={16} className="text-gray-400" />
             <span>
@@ -62,7 +67,7 @@ export default function TaskCard({ task, variant_style }: TaskCardProps) {
                 fill="currentColor"
               />
               <span className="hidden min-[321px]:inline whitespace-nowrap">
-                Nom du projet
+                {projectName}
               </span>
               <span>|</span>
               <Calendar size={16} className="text-gray-400 flex-shrink-0" />
