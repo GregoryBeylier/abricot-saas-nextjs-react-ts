@@ -1,8 +1,8 @@
-import type { Projects } from '@/lib/api'
+import type { Projects, UserProfile } from '@/lib/api'
 import { Users } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchProfile } from '@/lib/api'
-import type { UserProfile } from '@/app/(app)/dashboard/page'
+import { getInitiales, roleLabels } from '@/lib/utils'
 import Link from 'next/link'
 
 interface ProjectCardProps {
@@ -16,18 +16,6 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   })
 
   const userId = data?.data?.user?.id
-
-  const getInitiales = (name: string) =>
-    name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-
-  const roleLabels: Record<string, string> = {
-    OWNER: 'Propriétaire',
-    ADMIN: 'Admin',
-    CONTRIBUTOR: 'Contributeur',
-  }
 
   return (
     <Link href={`/projects/${project.id}`}>

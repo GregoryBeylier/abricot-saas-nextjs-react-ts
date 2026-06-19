@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { fetchLogin } from '@/lib/api'
 
 const schema = z.object({
   email: z.string().min(1, 'Email requis').email('Adresse email invalide'),
@@ -19,53 +20,43 @@ const schema = z.object({
 
 type Input = z.infer<typeof schema>
 
-// cette fonction est un composant React qui représente la page de connexion (SignIn) d'une application. Elle utilise Tailwind CSS pour le style et Next.js pour la gestion des images. Le composant est structuré en deux parties principales : une section de formulaire de connexion et une section d'image.
+// Composant de la page de connexion
 export default function SignIn() {
-  // useForm permet de gérer la validation, les valeurs des champs et les erreurs du formulaire
+  // useForm gère la validation, les valeurs des champs et les erreurs du formulaire
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Input>({
     resolver: zodResolver(schema),
-    // mode: onTuched permet de valider les champs du formulaire lorsque l'utilisateur quitte le champ (blur)
+    // Valide le champ lors du blur
     mode: 'onTouched',
   })
 
-  // useRouter est un hook permattant de naviguer entre les pages
+  // useRouter permet de naviguer entre les pages
   const router = useRouter()
-  // Cookie est une librairie qui permet de gerer les cookies dans le navigateur
+  // Cookie permet de stocker le token dans le navigateur
   const Cookies = Cookie.withAttributes({ path: '/' })
 
   const [erreur, setErreur] = useState('')
-  // La function useMutation permet de gerer les données de connexion permet d'envoyer les requettes de connexion a l'api
+  // useMutation gère l'envoi du formulaire de connexion et les états de la mutation
   const { mutate, isPending, isError } = useMutation({
-    mutationFn: async (data: Input) => {
-      const res = await fetch('http://localhost:8000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-      return await res.json()
-    },
-    // onSucess est une fonction est appeler lorque la connexion est reussie et permet de sotcker le toekn
+    mutationFn: fetchLogin,
+    // onSuccess est appelé lorsque la connexion réussit et permet de stocker le token
     onSuccess: (data) => {
-      // si la reponse de l'api est un echec on affiche le message d'erreur
+      // si la réponse de l'API est un échec, affiche un message d'erreur
       if (data.success === false) {
         setErreur(data.message)
       } else {
-        console.log('succès:', data)
         Cookies.set('token', data.data.token)
         router.push('/dashboard')
       }
     },
-    // onError est une fonction lorque la connexion echoue
-    onError: () => {
-      setErreur('Une erreur est survenue, veuillez réessayer')
-    },
+    // onError est appelé lorsque la mutation échoue
+    onError: () => setErreur('Une erreur est survenue, veuillez réessayer'),
   })
 
-  // OnSumit permet d'envoyer les donnés saisies dans le formulaire de connexion a l'api
+  // onSubmit envoie les données du formulaire à l'API
   const onSubmit = (data: Input) => {
     mutate(data)
   }

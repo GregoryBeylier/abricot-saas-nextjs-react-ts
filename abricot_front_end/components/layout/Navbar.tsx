@@ -9,10 +9,10 @@ import iconProjects from '@/public/projets.svg'
 import { fetchProfile } from '@/lib/api'
 
 export default function Header() {
-  // uesePathname est un hook qui permet de recuperer le chemin de la page actuelle
+  // usePathname récupère le chemin de la page actuelle
   const pathname = usePathname()
 
-  // appel de l'api pour recuperer les informations de l'utilisateur connecté
+  // Récupère le profil utilisateur depuis l'API
   const { data, isLoading, isError } = useQuery({
     queryKey: ['user'],
     queryFn: fetchProfile,

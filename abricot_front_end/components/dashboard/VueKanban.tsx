@@ -9,22 +9,22 @@ import {
 import TaskCard from '@/components/dashboard/TaskCard'
 
 export default function VueKanban() {
-  // Utilisation de la hook useQuery pour récupérer les tâche
+  // useQuery récupère les tâches assignées de l'utilisateur
   const { data } = useQuery<AssignedTasksResponse>({
     queryKey: ['tasks'],
     queryFn: fetchAssignedTasks,
   })
 
-  // Utilisation de la hook useQuery pour récupérer les noms des projets
+  // useQuery récupère les projets et leurs tâches pour obtenir les noms de projets
   const { data: projectsData } = useQuery<ProjectsWithTasksResponse>({
     queryKey: ['projcts'],
     queryFn: fetchProjectsWithTasks,
   })
 
-  // récupération des projets
+  // Récupère les projets depuis la réponse de la requête
   const projects = projectsData?.data?.projects ?? []
 
-  // Construit un dictionnaire { projectId: projectName } pour retrouver le nom d'un projet par son id
+  // Construit un dictionnaire projectId => projectName pour affichage
   const projectNames = projects.reduce<Record<string, string>>(
     (acc, project) => {
       acc[project.id] = project.name
@@ -33,10 +33,10 @@ export default function VueKanban() {
     {}
   )
 
-  // récupération des tâches
+  // Récupère les tâches depuis la réponse de la requête
   const tasks = data?.data?.tasks
 
-  // filtre les tâches Todo
+  // Filtre les tâches selon leur statut
   const todoTask = tasks?.filter((task) => task.status === 'TODO') || []
 
   // filtre les tâches in progress

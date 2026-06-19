@@ -10,22 +10,22 @@ import type { AssignedTasksResponse } from '@/lib/api'
 import TaskCard from '@/components/dashboard/TaskCard'
 
 export default function VueListe() {
-  // Utilisation de la hook useQuery pour récupérer les tâche
+  // useQuery récupère les tâches assignées de l'utilisateur
   const { data } = useQuery<AssignedTasksResponse>({
     queryKey: ['tasks'],
     queryFn: fetchAssignedTasks,
   })
 
-  // récupération des tâches
+  // Récupère les tâches depuis la réponse de la requête
   const tasks = data?.data?.tasks
 
-  // hook pour la recherche des tâches
+  // État local pour filtrer la liste des tâches
   const [search, setSearch] = useState('')
   const tasksFiltrees = tasks?.filter((task) =>
     task.title.toLowerCase().includes(search.toLowerCase())
   )
 
-  // Utilisation de la hook useQuery pour récupérer les noms des projets
+  // useQuery récupère les projets et leurs tâches pour obtenir les noms de projets
   const { data: projectsData } = useQuery<ProjectsWithTasksResponse>({
     queryKey: ['projcts'],
     queryFn: fetchProjectsWithTasks,

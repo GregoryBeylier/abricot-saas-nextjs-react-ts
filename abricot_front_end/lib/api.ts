@@ -1,7 +1,27 @@
 import Cookie from 'js-cookie'
 import type { Status } from '@/components/ui/StatusBadge'
 
-// appel l'api GET pour récuperer les donées de l'utilisateur connecté
+// Authentifie l'utilisateur — POST /auth/login
+export async function fetchLogin(data: { email: string; password: string }) {
+  const res = await fetch('http://localhost:8000/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return await res.json()
+}
+
+// Enregistre un nouvel utilisateur — POST /auth/register
+export async function fetchRegister(data: { email: string; password: string }) {
+  const res = await fetch('http://localhost:8000/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return await res.json()
+}
+
+// Récupère le profil de l'utilisateur connecté — GET /auth/profile
 export async function fetchProfile() {
   const token = Cookie.get('token')
   const response = await fetch('http://localhost:8000/auth/profile', {
@@ -13,7 +33,18 @@ export async function fetchProfile() {
   return await response.json()
 }
 
-// Interface pour les tâches
+// Type de réponse pour le profil utilisateur
+export interface UserProfile {
+  data: {
+    user: {
+      id: string
+      email: string
+      name: string | null
+    }
+  }
+}
+
+// Type représentant une tâche assignée
 export interface Task {
   id: string
   title: string
@@ -24,27 +55,27 @@ export interface Task {
   projectId: string
 }
 
-// Interface pour les tâches
+// Type de réponse pour les tâches assignées
 export interface AssignedTasksResponse {
   data: {
     tasks: Task[]
   }
 }
-// Projet avec ses tâches assignées — utilisé pour construire le dictionnaire { projectId: projectName }
+// Type représentant un projet contenant des tâches associées
 export interface ProjectWithTasks {
   id: string
   name: string
   tasks: Task[]
 }
 
-// Structure complète de la réponse retournée par GET
+// Type de réponse pour les projets et leurs tâches
 export interface ProjectsWithTasksResponse {
   data: {
     projects: ProjectWithTasks[]
   }
 }
 
-// appel l'api GET pour récuperer les projets dans lesquls des tache on ete assignés
+// Récupère les projets qui contiennent des tâches assignées — GET /dashboard/projects-with-tasks
 export async function fetchProjectsWithTasks() {
   const token = Cookie.get('token')
   const response = await fetch(
@@ -59,7 +90,7 @@ export async function fetchProjectsWithTasks() {
   return await response.json()
 }
 
-// appel l'api GET pour récuperer les tache assignées de l'utilisateur connecté
+// Récupère les tâches assignées à l'utilisateur connecté — GET /dashboard/assigned-tasks
 export async function fetchAssignedTasks() {
   const token = Cookie.get('token')
   const response = await fetch(
@@ -74,7 +105,7 @@ export async function fetchAssignedTasks() {
   return await response.json()
 }
 
-// une interface d'un membre apartenant à un projet
+// Type représentant un membre d'un projet
 export interface ProjectMember {
   id: string
   role: string
@@ -85,7 +116,7 @@ export interface ProjectMember {
   }
 }
 
-// un projet avec ses membres, son propriétaire et le rôle de l'utilisateur connecté
+// Type représentant un projet avec ses informations, propriétaire, membres et rôle de l'utilisateur connecté
 
 export interface Projects {
   id: string
@@ -102,14 +133,14 @@ export interface Projects {
   userRole: string
 }
 
-// Structure complète de la réponse retournée par l'endpoint GET
+// Type de réponse pour la liste des projets de l'utilisateur
 export interface ProjectsResponse {
   data: {
     projects: Projects[]
   }
 }
 
-// appel Api GEt récupérer tout les projets de tulisateur connecté S
+// Récupère tous les projets de l'utilisateur connecté — GET /projects
 export async function fetchProjects() {
   const token = Cookie.get('token')
   const response = await fetch('http://localhost:8000/projects', {
@@ -118,5 +149,50 @@ export async function fetchProjects() {
       Authorization: `Bearer ${token}`,
     },
   })
+  return await response.json()
+}
+
+// Type représentant un assigné d'une tâche de projet
+export interface Assignee {
+  id: string
+  userId: string
+  user: {
+    id: string
+    email: string
+    name: string | null
+  }
+}
+
+// Type représentant une tâche appartenant à un projet
+export interface ProjectTask {
+  id: string
+  title: string
+  description: string
+  status: Status
+  priority: string
+  dueDate: string | null
+  projectId: string
+  assignees: Assignee[]
+}
+
+// Type de réponse pour les tâches d'un projet
+export interface ProjectTasksResponse {
+  data: {
+    tasks: ProjectTask[]
+  }
+}
+
+// Récupère les tâches d'un projet spécifique — GET /projects/{id}/tasks
+export async function fetchProjectTasks(projectId: string) {
+  const token = Cookie.get('token')
+  const response = await fetch(
+    `http://localhost:8000/projects/${projectId}/tasks`,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
   return await response.json()
 }

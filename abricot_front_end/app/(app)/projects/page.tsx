@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button'
 import ProjectCard from '@/components/projects/ProjectCard'
 
 export default function ProjectsPage() {
-  // récupère les données utilisateur depuis le cache TanStack Query
+  // Récupère la liste des projets de l'utilisateur via TanStack Query
   const { data } = useQuery<ProjectsResponse>({
     queryKey: ['projects'],
     queryFn: fetchProjects,
   })
 
-  // recuperer le nom des projets de l'utlisateur
+  // Récupère les projets depuis la réponse de l'API
   const projects = data?.data?.projects ?? []
   return (
     <div className="bg-[#F9FAFB] px-4 lg:px-[112px] pt-[40px] pb-[50px]">

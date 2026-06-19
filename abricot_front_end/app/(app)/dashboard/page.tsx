@@ -3,31 +3,21 @@ import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 import { fetchProfile } from '@/lib/api'
+import type { UserProfile } from '@/lib/api'
 import VueListe from '@/components/dashboard/VueListe'
 import VueKanban from '@/components/dashboard/VueKanban'
 import iconListe from '@/public/liste.svg'
 import iconKanban from '@/public/kanban.svg'
 import Image from 'next/image'
 
-// interface pour typer la réponse de l'api
-export interface UserProfile {
-  data: {
-    user: {
-      id: string
-      email: string
-      name: string | null
-    }
-  }
-}
-
 export default function DashboardPage() {
-  // récupère les données utilisateur depuis le cache TanStack Query (même queryKey que la navbar)
+  // Récupère le profil utilisateur via TanStack Query
   const { data } = useQuery<UserProfile>({
     queryKey: ['user'],
     queryFn: fetchProfile,
   })
 
-  // recuperer le nom de l'utilisateur connecté
+  // Nom de l'utilisateur connecté
   const name = data?.data?.user?.name
 
   const [vue, setVue] = useState('liste')
