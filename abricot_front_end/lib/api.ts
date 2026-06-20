@@ -173,6 +173,7 @@ export interface ProjectTask {
   dueDate: string | null
   projectId: string
   assignees: Assignee[]
+  comments: { id: string }[]
 }
 
 // Type de réponse pour les tâches d'un projet

@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchProfile } from '@/lib/api'
 import { getInitiales, roleLabels } from '@/lib/utils'
 import Link from 'next/link'
+import RoleBadge from '@/components/ui/RoleBadge'
 
 interface ProjectCardProps {
   project: Projects
@@ -50,9 +51,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             >
               {project.owner.name ? getInitiales(project.owner.name) : '?'}
             </div>
-            <span className="bg-[#FFE8D9] text-[#D3590B] text-xs sm:text-sm px-3 py-1 rounded-full">
-              {roleLabels[project.userRole] ?? project.userRole}
-            </span>
+            <RoleBadge role={project.userRole} />
             <div className="flex items-center">
               {project.members
                 .filter((member) => member.user.id !== project.owner.id)
