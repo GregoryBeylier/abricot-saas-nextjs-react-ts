@@ -12,6 +12,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { fetchLogin } from '@/lib/api'
+import { Eye, EyeOff } from 'lucide-react'
 
 const schema = z.object({
   email: z.string().min(1, 'Email requis').email('Adresse email invalide'),
@@ -32,6 +33,8 @@ export default function SignIn() {
     // Valide le champ lors du blur
     mode: 'onTouched',
   })
+
+  const [showPassword, setShowPassword] = useState(false)
 
   // useRouter permet de naviguer entre les pages
   const router = useRouter()
@@ -76,7 +79,7 @@ export default function SignIn() {
           <Input
             {...register('email')}
             type="email"
-            className="bg-white h-12"
+            className={`bg-white h-12 ${errors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
           />
           {errors.email && (
             <p className="text-red-500 text-sm">{errors.email?.message}</p>
@@ -85,11 +88,20 @@ export default function SignIn() {
 
         <div className="max-w-xs mx-auto w-full flex flex-col gap-3">
           <Label>Mot de passe</Label>
-          <Input
-            {...register('password')}
-            type="password"
-            className="bg-white h-12"
-          />
+          <div className="relative">
+            <Input
+              {...register('password')}
+              type={showPassword ? 'text' : 'password'}
+              className={`bg-white h-12 ${errors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           {errors.password && (
             <p className="text-red-500 text-sm">{errors.password?.message}</p>
           )}
