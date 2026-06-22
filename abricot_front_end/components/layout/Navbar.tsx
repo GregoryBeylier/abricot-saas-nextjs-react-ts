@@ -33,7 +33,7 @@ export default function Header() {
       <div className="flex gap-4">
         <Link
           className={
-            pathname === '/dashboard'
+            pathname.startsWith('/dashboard')
               ? 'group flex items-center gap-2 bg-black text-white px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] transition-all duration-200'
               : 'group flex items-center gap-2 text-[var(--color-abricot)] px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] hover:bg-black hover:text-white transition-all duration-500'
           }
@@ -45,7 +45,7 @@ export default function Header() {
             width={24}
             height={24}
             className={`w-4 h-4 min-[321px]:w-5 min-[321px]:h-5 lg:w-6 lg:h-6 ${
-              pathname === '/dashboard'
+              pathname.startsWith('/dashboard')
                 ? 'brightness-0 invert'
                 : 'group-hover:brightness-0 group-hover:invert'
             }`}
@@ -54,7 +54,7 @@ export default function Header() {
         </Link>
         <Link
           className={
-            pathname === '/projects'
+            pathname.startsWith('/projects')
               ? 'group flex items-center gap-2 bg-black text-white px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] transition-all duration-200'
               : 'group flex items-center gap-2 text-[var(--color-abricot)] px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] hover:bg-black hover:text-white transition-all duration-500'
           }
@@ -66,7 +66,7 @@ export default function Header() {
             width={24}
             height={24}
             className={`w-4 h-4 min-[321px]:w-5 min-[321px]:h-5 lg:w-6 lg:h-6 ${
-              pathname === '/projects'
+              pathname.startsWith('/projects')
                 ? 'brightness-0 invert'
                 : 'group-hover:brightness-0 group-hover:invert'
             }`}

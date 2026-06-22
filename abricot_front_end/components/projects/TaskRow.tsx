@@ -15,9 +15,9 @@ export default function TaskRow({ task }: TaskRowProps) {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="bg-white rounded-xl border p-6 flex justify-between gap-4">
+    <div className="bg-white rounded-xl border p-6 flex flex-col md:flex-row justify-between gap-4 min-w-[130px] w-full">
       <div className="flex flex-col flex-1">
-        <div className="mb-1 flex items-center gap-3">
+        <div className="mb-1 flex flex-col gap-3 sm:flex-row sm:items-center items-start">
           <h2 className="font-medium">{task.title}</h2>
           <StatusBadge status={task.status} />
         </div>
@@ -50,7 +50,7 @@ export default function TaskRow({ task }: TaskRowProps) {
           {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </div>
       </div>
-      <button className="w-8 h-8 rounded-lg border flex items-center justify-center flex-shrink-0">
+      <button className="w-8 h-8 rounded-lg border flex items-center justify-center flex-shrink-0 self-end md:self-auto">
         <MoreHorizontal size={16} />
       </button>
     </div>
