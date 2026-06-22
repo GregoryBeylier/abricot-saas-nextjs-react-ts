@@ -1,14 +1,11 @@
 import Header from '@/components/layout/Navbar'
 import Footer from '@/components/layout/footer'
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
-      <main>{children}</main>
+      <main className="flex-1">{children}</main>
       <Footer />
     </>
   )
