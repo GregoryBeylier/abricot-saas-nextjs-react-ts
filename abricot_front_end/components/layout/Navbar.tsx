@@ -7,20 +7,30 @@ import { usePathname } from 'next/navigation'
 import iconDashboard from '@/public/dashboard.svg'
 import iconProjects from '@/public/projets.svg'
 import { fetchProfile } from '@/lib/api'
+import { useState } from 'react'
+import Cookie from 'js-cookie'
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
   // usePathname récupère le chemin de la page actuelle
   const pathname = usePathname()
 
-  // Récupère le profil utilisateur depuis l'API
+  const router = useRouter()
+
+  // Récupère le profil utilisateur depuis l'API (nom/email pour l'avatar)
   const { data, isLoading, isError } = useQuery({
     queryKey: ['user'],
     queryFn: fetchProfile,
   })
 
+  // État local pour ouvrir/fermer le menu utilisateur
+  const [open, setOpen] = useState(false)
+
+  // Structure principale de la navbar — responsive via classes Tailwind
   return (
-    <nav className="relative overflow-hidden flex items-center justify-between px-4 lg:px-[100px] py-[8px] h-[94px] bg-white w-full">
+    <nav className="relative flex items-center justify-between px-4 lg:px-[100px] py-[8px] h-[94px] bg-white w-full">
       <div className="flex items-center gap-4">
+        {/* Logo — s'adapte (mobile -> desktop) via les classes responsive */}
         <Image
           src={logo}
           alt="Abricot"
@@ -31,6 +41,7 @@ export default function Header() {
       </div>
 
       <div className="flex gap-4">
+        {/* Liens de navigation — style actif différent selon la route */}
         <Link
           className={
             pathname.startsWith('/dashboard')
@@ -50,6 +61,7 @@ export default function Header() {
                 : 'group-hover:brightness-0 group-hover:invert'
             }`}
           />
+          {/* Le label est masqué sur très petits écrans pour gagner de l'espace */}
           <span className="hidden sm:inline">Tableau de bord</span>
         </Link>
         <Link
@@ -75,10 +87,43 @@ export default function Header() {
         </Link>
       </div>
 
-      <div className="w-[40px] h-[40px] sm:w-[65px] sm:h-[65px] rounded-full bg-[#FFE8D9] flex items-center justify-center uppercase">
-        {data?.data?.user?.name
-          ? data.data.user.name.slice(0, 2)
-          : data?.data?.user?.email?.slice(0, 2)}
+      <div className="relative">
+        {/* Avatar / bouton utilisateur — affiche initiales et ouvre le menu */}
+        <div
+          onClick={() => setOpen(!open)}
+          className={`w-[40px] h-[40px] sm:w-[65px] sm:h-[65px] rounded-full flex items-center justify-center uppercase cursor-pointer transition-all ${
+            open || pathname.startsWith('/account')
+              ? 'bg-[#D3590B] text-white'
+              : 'bg-[#FFE8D9]'
+          }`}
+        >
+          {data?.data?.user?.name
+            ? data.data.user.name.slice(0, 2)
+            : data?.data?.user?.email?.slice(0, 2)}
+        </div>
+
+        {open && (
+          /* Menu déroulant — contient lien vers le compte et déconnexion */
+          <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border p-2 flex flex-col gap-1 min-w-[180px]">
+            <Link
+              href="/account"
+              className="px-4 py-2 text-sm hover:bg-gray-100 rounded-lg"
+            >
+              Mes informations
+            </Link>
+
+            <button
+              onClick={() => {
+                // Suppression du token et redirection vers la page de login
+                Cookie.remove('token')
+                router.push('/login')
+              }}
+              className="px-4 py-2 text-sm text-red-500 hover:bg-gray-100 rounded-lg text-left"
+            >
+              Se déconnecter
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   )

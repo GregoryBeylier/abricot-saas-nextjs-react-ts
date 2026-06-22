@@ -20,12 +20,12 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <Link href={`/projects/${project.id}`}>
-      <div className="bg-white rounded-xl border p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer h-full">
+      <div className="bg-white rounded-xl border p-4 sm:p-6 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col">
         <h2 className="font-semibold text-base sm:text-lg">{project.name}</h2>
-        <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+        <p className="text-sm text-gray-500 line-clamp-2 mt-1 min-h-[2.5rem]">
           {project.description}
         </p>
-        <div className="mt-8">
+        <div className="mt-8 flex-1">
           <div className="flex justify-between text-sm text-gray-500 mb-1">
             <span>Progression</span>
             <span>0%</span>
