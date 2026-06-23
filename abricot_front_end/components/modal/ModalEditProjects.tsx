@@ -1,20 +1,24 @@
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import * as z from 'zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  fetchCreateProject,
+  AddContributorBody,
+  fetchAddContributor,
+  fetchRemoveContributor,
   fetchSearchUsersProject,
+  fetchUpdateProject,
+  Projects,
   SearchUserProject,
   SearchUserProjectResponse,
 } from '@/lib/api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import z from 'zod'
+import { useModal } from '../providers/ModalProvider'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { getInitiales } from '@/lib/utils'
-import { useModal } from '@/components/providers/ModalProvider'
 import { ChevronDown } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '../ui/label'
 
 const schema = z.object({
   name: z.string().min(1, 'Un titre est requis'),
@@ -24,26 +28,31 @@ const schema = z.object({
 
 type Input = z.infer<typeof schema>
 
-export default function ModalCreateProject() {
-  // useState pour gerer les message d'erreur et de reussite
+export default function ModalEditProject({ project }: { project: Projects }) {
   const [erreur, setErreur] = useState('')
-  const [selectedUsers, setSelectedUsers] = useState<SearchUserProject[]>([])
+
+  const [selectedUsers, setSelectedUsers] = useState<SearchUserProject[]>(
+    project.members.map((m) => ({ ...m.user, name: m.user.name ?? '' }))
+  )
 
   const { setOpenModal } = useModal()
   const queryClient = useQueryClient()
 
-  // useMutation gère l'envoi de la modification des informations de l'utilisateur
-  const { mutate: mutateCreateProject } = useMutation({
-    mutationFn: fetchCreateProject,
-    // onSuccess est appelé lorsque la modification echoue
-    onSuccess: (data) => {
-      if (data.success === false) {
-        setErreur(data.message)
-      } else {
-        setOpenModal(false)
-        queryClient.invalidateQueries({ queryKey: ['projects'] })
-      }
-    },
+  // useMutation pour modifier le titre et la description
+  const { mutateAsync: mutateUpdateProject } = useMutation({
+    mutationFn: (data: Input) => fetchUpdateProject(project.id, data),
+    onError: () => setErreur('Une erreur est survenue, veuillez réessayer'),
+  })
+
+  // useMutation pour ajouter un contributeur
+  const { mutateAsync: mutateAddContributorsProject } = useMutation({
+    mutationFn: (data: AddContributorBody) => fetchAddContributor(project.id, data),
+    onError: () => setErreur('Une erreur est survenue, veuillez réessayer'),
+  })
+
+  // useMutation pour supprimer un contributeur
+  const { mutateAsync: mutateRemoveContributorsProject } = useMutation({
+    mutationFn: (userId: string) => fetchRemoveContributor(project.id, userId),
     onError: () => setErreur('Une erreur est survenue, veuillez réessayer'),
   })
 
@@ -55,7 +64,12 @@ export default function ModalCreateProject() {
   } = useForm<Input>({
     resolver: zodResolver(schema),
     mode: 'onChange',
+    defaultValues: {
+      name: project.name,
+      description: project.description ?? '',
+    },
   })
+
   const [query, setQuery] = useState('')
 
   const { data } = useQuery<SearchUserProjectResponse>({
@@ -64,12 +78,25 @@ export default function ModalCreateProject() {
     enabled: query.length >= 2,
   })
 
-  const onSubmit = (data: Input) => {
-    mutateCreateProject(data)
+  const onSubmit = async (data: Input) => {
+    const initialIds = project.members.map((m) => m.user.id)
+    const selectedIds = selectedUsers.map((u) => u.id)
+
+    const toAdd = selectedUsers.filter((u) => !initialIds.includes(u.id))
+    const toRemove = project.members.filter((m) => !selectedIds.includes(m.user.id))
+
+    await Promise.all([
+      mutateUpdateProject(data),
+      ...toAdd.map((u) => mutateAddContributorsProject({ email: u.email, role: 'CONTRIBUTOR' })),
+      ...toRemove.map((m) => mutateRemoveContributorsProject(m.user.id)),
+    ])
+
+    setOpenModal(false)
+    queryClient.invalidateQueries({ queryKey: ['projects'] })
   }
   return (
     <>
-      <h1 className="font-semibold text-xl mb-8">Créer un projet</h1>
+      <h1 className="font-semibold text-xl mb-8">Modifier un projet</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div className="flex flex-col gap-3">
@@ -97,7 +124,7 @@ export default function ModalCreateProject() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Choisir un ou plusieurs collaborateurs"
+              placeholder={`${selectedUsers.length} collaborateur${selectedUsers.length > 1 ? 's' : ''}`}
               className="border rounded-lg bg-white h-12 pr-10"
             />
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
@@ -143,11 +170,9 @@ export default function ModalCreateProject() {
               </span>
               <button
                 type="button"
-                onClick={() =>
-                  setSelectedUsers(
-                    selectedUsers.filter((u) => u.id !== user.id)
-                  )
-                }
+                onClick={() => {
+                  setSelectedUsers(selectedUsers.filter((u) => u.id !== user.id))
+                }}
               >
                 ✕
               </button>
@@ -159,7 +184,7 @@ export default function ModalCreateProject() {
           type="submit"
           className="w-fit h-12 px-8 rounded-[10px] bg-gray-200 text-gray-500 hover:bg-[#1F1F1F] hover:text-white transition-colors"
         >
-          Ajouter un projet
+          Enrengistrer
         </Button>
       </form>
     </>

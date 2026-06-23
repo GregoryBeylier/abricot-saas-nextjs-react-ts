@@ -248,6 +248,85 @@ export function fetchCreateProject(
   })
 }
 
+// ─── Modification du projets  ──────────────────────────────────────────────────────────────────
+
+export interface UpdateProjectBody {
+  name?: string
+  description?: string
+}
+
+export interface UpdateProjectBodyResponse {
+  success: boolean
+  message: string
+  data: {
+    id: string
+    name: string
+    description: string
+    ownerId: string
+    owner: {
+      id: string
+      email: string
+      name: string
+    }
+    members: {
+      id: string
+      role: string
+      user: {
+        id: string
+        email: string
+        name: string
+      }
+    }[]
+  }
+}
+
+// met à jour le titre et la description
+export function fetchUpdateProject(
+  projectId: string,
+  data: UpdateProjectBody
+): Promise<UpdateProjectBodyResponse> {
+  return apiRequest<UpdateProjectBodyResponse>(`/projects/${projectId}`, {
+    method: 'PUT',
+    body: data,
+  })
+}
+
+export interface AddContributorBody {
+  email: string
+  role?: 'ADMIN' | 'CONTRIBUTOR'
+}
+
+export interface AddContributorResponse {
+  success: boolean
+  message: string
+}
+
+// ─── Contributeurs ───────────────────────────────────────────────────────────
+
+//pour ajouter dans un projet existant
+export function fetchAddContributor(
+  projectId: string,
+  data: AddContributorBody
+): Promise<AddContributorResponse> {
+  return apiRequest<AddContributorResponse>(
+    `/projects/${projectId}/contributors`,
+    {
+      method: 'POST',
+      body: data,
+    }
+  )
+}
+
+//pour supprimer dans un projet existant
+export function fetchRemoveContributor(
+  projectId: string,
+  userId: string
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/projects/${projectId}/contributors/${userId}`, {
+    method: 'DELETE',
+  })
+}
+
 // ─── Recherche un utlisateur  ──────────────────────────────────────────────────────────────────
 
 export interface SearchUserProject {
@@ -264,6 +343,7 @@ export interface SearchUserProjectResponse {
   }
 }
 
+// pour la création du projet
 export function fetchSearchUsersProject(
   query: string
 ): Promise<SearchUserProjectResponse> {

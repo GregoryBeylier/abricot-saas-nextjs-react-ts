@@ -1,5 +1,5 @@
 'use client'
-import { use, useState } from 'react'
+import { JSX, use, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchProjectTasks, fetchProjects, fetchProfile } from '@/lib/api'
 import type { ProjectTasksResponse, ProjectsResponse } from '@/lib/api'
@@ -17,6 +17,8 @@ import { getInitiales, roleLabels } from '@/lib/utils'
 import RoleBadge from '@/components/ui/RoleBadge'
 import TaskRow from '@/components/projects/TaskRow'
 import type { Status } from '@/components/ui/StatusBadge'
+import ModalEditProject from '@/components/modal/ModalEditProjects'
+import { useModal } from '@/components/providers/ModalProvider'
 
 export default function ProjectPage({
   params,
@@ -25,6 +27,7 @@ export default function ProjectPage({
 }) {
   const { id } = use(params)
   const router = useRouter()
+  const { setOpenModal, setContentModal } = useModal()
 
   const { data } = useQuery<ProjectTasksResponse>({
     queryFn: () => fetchProjectTasks(id),
@@ -69,7 +72,11 @@ export default function ProjectPage({
             <div className="flex items-center gap-2">
               <h1 className="font-semibold text-xl">{project?.name}</h1>
               <a
-                href="/login"
+                onClick={() => {
+                  if (!project) return
+                  setContentModal(<ModalEditProject project={project} />)
+                  setOpenModal(true)
+                }}
                 className="text-sm text-[var(--color-abricot)] underline"
               >
                 modifier

@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchProjects, type ProjectsResponse } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import ProjectCard from '@/components/projects/ProjectCard'
+import { useModal } from '@/components/providers/ModalProvider'
+import ModalCreateProject from '@/components/modal/ModalCreateProject'
 
 export default function ProjectsPage() {
   // Récupère la liste des projets de l'utilisateur via TanStack Query
@@ -10,6 +12,8 @@ export default function ProjectsPage() {
     queryKey: ['projects'],
     queryFn: fetchProjects,
   })
+
+  const { setContentModal, setOpenModal } = useModal()
 
   // Récupère les projets depuis la réponse de l'API
   const projects = data?.data?.projects ?? []
@@ -20,7 +24,13 @@ export default function ProjectsPage() {
           <h1 className="text-2xl font-semibold mb-2">Mes projets</h1>
           <p className="mb-10">Gérez vos projets</p>
         </div>
-        <Button className="h-[50px] px-[30px] rounded-[10px] text-base font-normal sm:mt-[89px]">
+        <Button
+          className="h-[50px] px-[30px] rounded-[10px] text-base font-normal sm:mt-[89px]"
+          onClick={() => {
+            setContentModal(<ModalCreateProject />)
+            setOpenModal(true)
+          }}
+        >
           + Créer un projet
         </Button>
       </div>

@@ -26,7 +26,6 @@ export default function DashboardPage() {
 
   const { setContentModal, setOpenModal } = useModal()
 
-  console.log(vue)
   return (
     <div className="bg-[#F9FAFB] px-4 lg:px-[112px] pt-[40px] pb-[50px]">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
