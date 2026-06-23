@@ -1,6 +1,40 @@
 import Cookie from 'js-cookie'
 import type { Status } from '@/components/ui/StatusBadge'
 
+// ─── Wrapper HTTP ───────────────────────────────────────────────────────────
+
+// URL de base de l'API
+const API_BASE_URL = 'http://localhost:8000'
+
+// Options acceptées par le wrapper apiRequest
+interface RequestOptions {
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+  body?: unknown
+  // Ajoute l'en-tête Authorization avec le token (true par défaut)
+  auth?: boolean
+}
+
+// Wrapper centralisé : construit l'URL, pose les en-têtes (et le token si besoin),
+// envoie la requête et renvoie une promesse résolue avec le JSON de la réponse.
+function apiRequest<T = any>(
+  path: string,
+  { method = 'GET', body, auth = true }: RequestOptions = {}
+): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  if (auth) {
+    headers.Authorization = `Bearer ${Cookie.get('token')}`
+  }
+
+  return fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  }).then((response) => response.json() as Promise<T>)
+}
+
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 // Type de réponse pour le profil utilisateur
@@ -15,71 +49,37 @@ export interface UserProfile {
 }
 
 // Récupère le profil de l'utilisateur connecté — GET /auth/profile
-export async function fetchProfile() {
-  const token = Cookie.get('token')
-  const response = await fetch('http://localhost:8000/auth/profile', {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  })
-  return await response.json()
+export function fetchProfile(): Promise<UserProfile> {
+  return apiRequest<UserProfile>('/auth/profile')
 }
 
 // Authentifie l'utilisateur — POST /auth/login
-export async function fetchLogin(data: { email: string; password: string }) {
-  const res = await fetch('http://localhost:8000/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-  return await res.json()
+export function fetchLogin(data: { email: string; password: string }) {
+  return apiRequest('/auth/login', { method: 'POST', body: data, auth: false })
 }
 
 // Enregistre un nouvel utilisateur — POST /auth/register
-export async function fetchRegister(data: { email: string; password: string }) {
-  const res = await fetch('http://localhost:8000/auth/register', {
+export function fetchRegister(data: { email: string; password: string }) {
+  return apiRequest('/auth/register', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: data,
+    auth: false,
   })
-  return await res.json()
 }
 
 // ─── Auth — Modification ──────────────────────────────────────────────────────
 
 // Met à jour le profil de l'utilisateur connecté — PUT /auth/profile
-export async function fetchUpdateProfile(data: {
-  email?: string
-  name?: string
-}) {
-  const token = Cookie.get('token')
-  const response = await fetch('http://localhost:8000/auth/profile', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  })
-  return await response.json()
+export function fetchUpdateProfile(data: { email?: string; name?: string }) {
+  return apiRequest('/auth/profile', { method: 'PUT', body: data })
 }
 
 // Met à jour le mot de passe de l'utilisateur connecté — PUT /auth/password
-export async function fetchUpdatePassword(data: {
+export function fetchUpdatePassword(data: {
   currentPassword: string
   newPassword: string
 }) {
-  const token = Cookie.get('token')
-  const response = await fetch('http://localhost:8000/auth/password', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  })
-  return await response.json()
+  return apiRequest('/auth/password', { method: 'PUT', body: data })
 }
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
@@ -117,33 +117,13 @@ export interface ProjectsWithTasksResponse {
 }
 
 // Récupère les tâches assignées à l'utilisateur connecté — GET /dashboard/assigned-tasks
-export async function fetchAssignedTasks() {
-  const token = Cookie.get('token')
-  const response = await fetch(
-    'http://localhost:8000/dashboard/assigned-tasks',
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  )
-  return await response.json()
+export function fetchAssignedTasks(): Promise<AssignedTasksResponse> {
+  return apiRequest<AssignedTasksResponse>('/dashboard/assigned-tasks')
 }
 
 // Récupère les projets qui contiennent des tâches assignées — GET /dashboard/projects-with-tasks
-export async function fetchProjectsWithTasks() {
-  const token = Cookie.get('token')
-  const response = await fetch(
-    'http://localhost:8000/dashboard/projects-with-tasks',
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  )
-  return await response.json()
+export function fetchProjectsWithTasks(): Promise<ProjectsWithTasksResponse> {
+  return apiRequest<ProjectsWithTasksResponse>('/dashboard/projects-with-tasks')
 }
 
 // ─── Projets ──────────────────────────────────────────────────────────────────
@@ -214,28 +194,78 @@ export interface ProjectTasksResponse {
 }
 
 // Récupère tous les projets de l'utilisateur connecté — GET /projects
-export async function fetchProjects() {
-  const token = Cookie.get('token')
-  const response = await fetch('http://localhost:8000/projects', {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  })
-  return await response.json()
+export function fetchProjects(): Promise<ProjectsResponse> {
+  return apiRequest<ProjectsResponse>('/projects')
 }
 
 // Récupère les tâches d'un projet spécifique — GET /projects/{id}/tasks
-export async function fetchProjectTasks(projectId: string) {
-  const token = Cookie.get('token')
-  const response = await fetch(
-    `http://localhost:8000/projects/${projectId}/tasks`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+export function fetchProjectTasks(
+  projectId: string
+): Promise<ProjectTasksResponse> {
+  return apiRequest<ProjectTasksResponse>(`/projects/${projectId}/tasks`)
+}
+
+// ─── CreateProject  ──────────────────────────────────────────────────────────────────
+
+export interface CreateProjectBody {
+  name: string
+  description?: string
+  contributors?: string[]
+}
+
+export interface CreateProjectResponse {
+  success: boolean
+  message: string
+  data: {
+    id: string
+    name: string
+    description: string
+    ownerId: string
+    owner: {
+      id: string
+      email: string
+      name: string
     }
-  )
-  return await response.json()
+    members: {
+      id: string
+      role: string
+      user: {
+        id: string
+        email: string
+        name: string
+      }
+    }[]
+  }
+}
+
+// Crée un nouveau projet — POST /projects
+export function fetchCreateProject(
+  data: CreateProjectBody
+): Promise<CreateProjectResponse> {
+  return apiRequest<CreateProjectResponse>('/projects', {
+    method: 'POST',
+    body: data,
+  })
+}
+
+// ─── Recherche un utlisateur  ──────────────────────────────────────────────────────────────────
+
+export interface SearchUserProject {
+  id: string
+  email: string
+  name: string
+}
+
+export interface SearchUserProjectResponse {
+  success: boolean
+  message: string
+  data: {
+    users: SearchUserProject[]
+  }
+}
+
+export function fetchSearchUsersProject(
+  query: string
+): Promise<SearchUserProjectResponse> {
+  return apiRequest<SearchUserProjectResponse>(`/users/search?query=${query}`)
 }

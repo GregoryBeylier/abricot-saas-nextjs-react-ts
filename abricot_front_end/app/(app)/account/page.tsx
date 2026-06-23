@@ -74,7 +74,6 @@ export default function Account() {
   })
 
   const onSubmit = (data: Input) => {
-    console.log('onSubmit appelé', data)
     mutateProfile({
       name: `${data.firstName} ${data.lastName}`,
       email: data.email,

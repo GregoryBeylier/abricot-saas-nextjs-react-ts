@@ -9,6 +9,8 @@ import VueKanban from '@/components/dashboard/VueKanban'
 import iconListe from '@/public/liste.svg'
 import iconKanban from '@/public/kanban.svg'
 import Image from 'next/image'
+import ModalCreateProject from '@/components/modal/ModalCreateProject'
+import { useModal } from '@/components/providers/ModalProvider'
 
 export default function DashboardPage() {
   // Récupère le profil utilisateur via TanStack Query
@@ -21,6 +23,9 @@ export default function DashboardPage() {
   const name = data?.data?.user?.name
 
   const [vue, setVue] = useState('liste')
+
+  const { setContentModal, setOpenModal } = useModal()
+
   console.log(vue)
   return (
     <div className="bg-[#F9FAFB] px-4 lg:px-[112px] pt-[40px] pb-[50px]">
@@ -29,7 +34,13 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-semibold">Tableau de bord</h1>
           <p>Bonjour {name}, voici un aperçu de vos projets et tâches</p>
         </div>
-        <Button className="h-[50px] px-[30px] rounded-[10px] text-base font-normal sm:mt-[89px]">
+        <Button
+          className="h-[50px] px-[30px] rounded-[10px] text-base font-normal sm:mt-[89px]"
+          onClick={() => {
+            setContentModal(<ModalCreateProject />)
+            setOpenModal(true)
+          }}
+        >
           + Créer un projet
         </Button>
       </div>
