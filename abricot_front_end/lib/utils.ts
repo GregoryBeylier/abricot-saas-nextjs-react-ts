@@ -7,16 +7,15 @@ export function cn(...inputs: ClassValue[]) {
 
 // Génère les initiales d'un nom complet
 export function getInitiales(name: string) {
-  return name
-    .split(' ')
-    .map((part) => part[0]?.toUpperCase() ?? '')
-
-    .join('')
+  const parts = name.split(' ').filter(Boolean)
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+  return parts.map((part) => part[0]?.toUpperCase() ?? '').join('')
 }
 
 // Étiquettes lisibles pour les rôles de projet
 export const roleLabels: Record<string, string> = {
-  OWNER: 'Propriétaire',
   ADMIN: 'Admin',
   CONTRIBUTOR: 'Contributeur',
 }

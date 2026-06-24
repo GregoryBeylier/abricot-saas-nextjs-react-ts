@@ -65,6 +65,7 @@ export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<Input>({
     resolver: zodResolver(schema),
     mode: 'onTouched',
@@ -87,7 +88,7 @@ export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div className="flex flex-col gap-3">
-          <Label>Titre </Label>
+          <Label>Titre * </Label>
           <Input
             {...register('title')}
             className={`border rounded-lg bg-white h-12 pr-10 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
@@ -209,9 +210,14 @@ export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
 
         <Button
           type="submit"
-          className="w-fit h-12 px-8 rounded-[10px] bg-gray-200 text-gray-500 hover:bg-[#1F1F1F] hover:text-white transition-colors"
+          disabled={!watch('title')}
+          className={`w-fit h-12 px-8 rounded-[10px] transition-colors ${
+            watch('title')
+              ? 'bg-[#1F1F1F] text-white'
+              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+          }`}
         >
-          Enregistrer
+          Ajouter un projet
         </Button>
       </form>
     </>

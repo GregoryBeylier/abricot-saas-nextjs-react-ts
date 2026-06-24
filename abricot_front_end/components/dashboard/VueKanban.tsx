@@ -47,57 +47,59 @@ export default function VueKanban() {
   const doneTask = tasks?.filter((task) => task.status === 'DONE') || []
 
   return (
-    <div className="flex gap-4 overflow-x-auto min-w-[1100px]">
-      <div className="bg-white rounded-xl p-6 w-1/3 min-w-[280px] overflow-y-auto max-h-[600px]">
-        <div className="flex items-center gap-2 mb-8 pl-1 pt-5">
-          <p className="font-semibold">À faire</p>
-          <span className="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-sm">
-            {todoTask.length}
-          </span>
-        </div>
-        {todoTask.map((task) => (
-          <div key={task.id} className="border rounded-lg p-4 mb-4">
-            <TaskCard
-              task={task}
-              variant_style="flex-col"
-              projectName={projectNames[task.projectId]}
-            />
+    <div className="overflow-x-auto scrollbar-hide">
+      <div className="flex gap-4 min-w-[860px]">
+        <div className="bg-white rounded-xl p-6 w-1/3 min-w-[270px] md:overflow-y-auto md:max-h-[600px] scrollbar-hide">
+          <div className="flex items-center gap-2 mb-8 pl-1 pt-5">
+            <p className="font-semibold">À faire</p>
+            <span className="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-sm">
+              {todoTask.length}
+            </span>
           </div>
-        ))}
-      </div>
-      <div className="bg-white rounded-xl p-6 w-1/3 min-w-[280px] overflow-y-auto max-h-[600px]">
-        <div className="flex items-center gap-2 mb-8 pl-1 pt-5">
-          <p className="font-semibold">En cours</p>
-          <span className="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-sm">
-            {inProgressTask.length}
-          </span>
+          {todoTask.map((task) => (
+            <div key={task.id} className="border rounded-lg p-4 mb-4">
+              <TaskCard
+                task={task}
+                variant_style="flex-col"
+                projectName={projectNames[task.projectId]}
+              />
+            </div>
+          ))}
         </div>
-        {inProgressTask.map((task) => (
-          <div key={task.id} className="border rounded-lg p-4 mb-4">
-            <TaskCard
-              task={task}
-              variant_style="flex-col"
-              projectName={projectNames[task.projectId]}
-            />
+        <div className="bg-white rounded-xl p-6 w-1/3 min-w-[270px] md:overflow-y-auto md:max-h-[600px] scrollbar-hide">
+          <div className="flex items-center gap-2 mb-8 pl-1 pt-5">
+            <p className="font-semibold">En cours</p>
+            <span className="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-sm">
+              {inProgressTask.length}
+            </span>
           </div>
-        ))}
-      </div>
-      <div className="bg-white rounded-xl p-6 w-1/3 min-w-[280px] overflow-y-auto max-h-[600px]">
-        <div className="flex items-center gap-2 mb-8 pl-1 pt-5">
-          <p className="font-semibold">Terminée</p>
-          <span className="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-sm">
-            {doneTask.length}
-          </span>
+          {inProgressTask.map((task) => (
+            <div key={task.id} className="border rounded-lg p-4 mb-4">
+              <TaskCard
+                task={task}
+                variant_style="flex-col"
+                projectName={projectNames[task.projectId]}
+              />
+            </div>
+          ))}
         </div>
-        {doneTask.map((task) => (
-          <div key={task.id} className="border rounded-lg p-4 mb-4">
-            <TaskCard
-              task={task}
-              variant_style="flex-col"
-              projectName={projectNames[task.projectId]}
-            />
+        <div className="bg-white rounded-xl p-6 w-1/3 min-w-[270px] md:overflow-y-auto md:max-h-[600px] scrollbar-hide">
+          <div className="flex items-center gap-2 mb-8 pl-1 pt-5">
+            <p className="font-semibold">Terminée</p>
+            <span className="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-sm">
+              {doneTask.length}
+            </span>
           </div>
-        ))}
+          {doneTask.map((task) => (
+            <div key={task.id} className="border rounded-lg p-4 mb-4">
+              <TaskCard
+                task={task}
+                variant_style="flex-col"
+                projectName={projectNames[task.projectId]}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

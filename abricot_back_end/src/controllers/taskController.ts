@@ -578,3 +578,4 @@ export const deleteTask = async (
     sendServerError(res, 'Erreur lors de la suppression de la tâche')
   }
 }
+                                                                                                                       

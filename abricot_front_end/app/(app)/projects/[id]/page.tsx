@@ -1,5 +1,5 @@
 'use client'
-import { use, useState, useEffect } from 'react'
+import { use, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   fetchProjectTasks,
@@ -69,11 +69,14 @@ export default function ProjectPage({
     },
   })
 
-  const tasksFiltrees = tasks?.filter(
-    (task) =>
-      task.title.toLowerCase().includes(search.toLowerCase()) &&
-      (statusFiltre === null || task.status === statusFiltre)
-  )
+  const tasksFiltrees = tasks?.filter((task) => {
+    const q = search.toLowerCase()
+    const matchSearch =
+      task.title.toLowerCase().includes(q) ||
+      task.description?.toLowerCase().includes(q)
+    const matchStatus = statusFiltre === null || task.status === statusFiltre
+    return matchSearch && matchStatus
+  })
   if (!isSuccess) return null
   if (isSuccess && !project)
     return (
@@ -104,7 +107,7 @@ export default function ProjectPage({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-semibold text-xl">{project?.name}</h1>
-              {(project?.userRole === 'OWNER' ||
+              {(project?.owner?.id === userId ||
                 project?.userRole === 'ADMIN') && (
                 <div className="relative">
                   <a
@@ -119,7 +122,7 @@ export default function ProjectPage({
                         onClick={() => {
                           setMenuOpen(false)
                           setContentModal(
-                            <ModalEditProject project={project} />
+                            <ModalEditProject project={project!} />
                           )
                           setOpenModal(true)
                         }}
@@ -127,7 +130,7 @@ export default function ProjectPage({
                       >
                         Modifier le projet
                       </button>
-                      {project?.userRole === 'OWNER' && (
+                      {project?.owner?.id === userId && (
                         <button
                           onClick={() => {
                             setMenuOpen(false)
@@ -179,7 +182,9 @@ export default function ProjectPage({
               project?.owner?.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
             }`}
           >
-            {project?.owner?.name ? getInitiales(project.owner.name) : '?'}
+            {project?.owner?.name
+              ? getInitiales(project.owner.name)
+              : getInitiales(project?.owner?.email ?? '')}
           </div>
           <RoleBadge role={project?.userRole ?? ''} />
           {project?.members
@@ -192,10 +197,12 @@ export default function ProjectPage({
                     member.user.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
                   }`}
                 >
-                  {member.user.name ? getInitiales(member.user.name) : '?'}
+                  {member.user.name
+                    ? getInitiales(member.user.name)
+                    : getInitiales(member.user.email)}
                 </div>
                 <span className="text-sm text-gray-600 bg-[#E5E7EB] px-3 py-1 rounded-full">
-                  {member.user.name}
+                  {member.user.name ?? member.user.email}
                 </span>
               </div>
             ))}

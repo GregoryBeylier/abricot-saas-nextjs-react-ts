@@ -4,6 +4,7 @@ import {
   fetchRemoveContributor,
   fetchSearchUsersProject,
   fetchUpdateProject,
+  fetchProfile,
   Projects,
   SearchUserProject,
   SearchUserProjectResponse,
@@ -32,7 +33,10 @@ export default function ModalEditProject({ project }: { project: Projects }) {
   const [erreur, setErreur] = useState('')
 
   const [selectedUsers, setSelectedUsers] = useState<SearchUserProject[]>(
-    project.members.map((m) => ({ ...m.user, name: m.user.name ?? '' }))
+    project.members.map((m) => ({
+      ...m.user,
+      name: m.user.name ?? m.user.email,
+    }))
   )
 
   const { setOpenModal } = useModal()
@@ -62,6 +66,7 @@ export default function ModalEditProject({ project }: { project: Projects }) {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<Input>({
     resolver: zodResolver(schema),
     mode: 'onChange',
@@ -73,11 +78,21 @@ export default function ModalEditProject({ project }: { project: Projects }) {
 
   const [query, setQuery] = useState('')
 
+  const { data: profileData } = useQuery({
+    queryKey: ['user'],
+    queryFn: fetchProfile,
+  })
+  const currentUserId = profileData?.data?.user?.id
+
   const { data } = useQuery<SearchUserProjectResponse>({
     queryKey: ['users-search', query],
     queryFn: () => fetchSearchUsersProject(query),
     enabled: query.length >= 2,
   })
+
+  const searchResults = (data?.data.users ?? []).filter(
+    (u) => u.id !== currentUserId
+  )
 
   const onSubmit = async (data: Input) => {
     const initialIds = project.members.map((m) => m.user.id)
@@ -105,7 +120,7 @@ export default function ModalEditProject({ project }: { project: Projects }) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div className="flex flex-col gap-3">
-          <Label>Titre </Label>
+          <Label>Titre * </Label>
           <Input
             {...register('name')}
             className={`border rounded-lg bg-white h-12 pr-10 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
@@ -135,7 +150,7 @@ export default function ModalEditProject({ project }: { project: Projects }) {
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             {query.length >= 2 && (
               <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg top-full">
-                {(data?.data.users ?? []).map((user) => (
+                {searchResults.map((user) => (
                   <div
                     key={user.id}
                     className="flex items-center py-2 px-3 cursor-pointer hover:bg-gray-50"
@@ -167,17 +182,22 @@ export default function ModalEditProject({ project }: { project: Projects }) {
           {selectedUsers.map((user) => (
             <div key={user.id} className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-[#FFE8D9] flex items-center justify-center text-xs font-medium uppercase ring-2 ring-white shrink-0">
-                {getInitiales(user.name ?? '')}
+                {getInitiales(user.name ?? user.email)}
               </div>
               <span className="text-sm">
                 <span className="hidden sm:inline">{user.email}</span>
-                <span className="sm:hidden">{user.name}</span>
+                <span className="sm:hidden">{user.name || user.email}</span>
               </span>
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedUsers(
-                    selectedUsers.filter((u) => u.id !== user.id)
+                  const newSelected = selectedUsers.filter(
+                    (u) => u.id !== user.id
+                  )
+                  setSelectedUsers(newSelected)
+                  setValue(
+                    'contributors',
+                    newSelected.map((u) => u.email)
                   )
                 }}
               >
@@ -189,9 +209,14 @@ export default function ModalEditProject({ project }: { project: Projects }) {
 
         <Button
           type="submit"
-          className="w-fit h-12 px-8 rounded-[10px] bg-gray-200 text-gray-500 hover:bg-[#1F1F1F] hover:text-white transition-colors"
+          disabled={!watch('name')}
+          className={`w-fit h-12 px-8 rounded-[10px] transition-colors ${
+            watch('name')
+              ? 'bg-[#1F1F1F] text-white'
+              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+          }`}
         >
-          Enrengistrer
+          Ajouter un projet
         </Button>
       </form>
     </>

@@ -11,6 +11,7 @@ import iconKanban from '@/public/kanban.svg'
 import Image from 'next/image'
 import ModalCreateProject from '@/components/modal/ModalCreateProject'
 import { useModal } from '@/components/providers/ModalProvider'
+import { email } from 'zod'
 
 export default function DashboardPage() {
   // Récupère le profil utilisateur via TanStack Query
@@ -21,6 +22,7 @@ export default function DashboardPage() {
 
   // Nom de l'utilisateur connecté
   const name = data?.data?.user?.name
+  const email = data?.data?.user?.email
 
   const [vue, setVue] = useState('liste')
 
@@ -31,7 +33,9 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div className="mt-[40px] lg:mt-[89px]">
           <h1 className="text-2xl font-semibold">Tableau de bord</h1>
-          <p>Bonjour {name}, voici un aperçu de vos projets et tâches</p>
+          <p>
+            Bonjour {name ?? email}, voici un aperçu de vos projets et tâches
+          </p>
         </div>
         <Button
           className="h-[50px] px-[30px] rounded-[10px] text-base font-normal sm:mt-[89px]"

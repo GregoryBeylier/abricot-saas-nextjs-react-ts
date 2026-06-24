@@ -93,6 +93,14 @@ export interface Task {
   dueDate: string | null
   comments: { id: string }[]
   projectId: string
+  assignees: {
+    id: string
+    user: {
+      id: string
+      email: string
+      name: string | null
+    }
+  }[]
 }
 
 // Type de réponse pour les tâches assignées

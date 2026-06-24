@@ -1,12 +1,18 @@
 'use client'
 
-import { fetchCreateTask, ProjectMember, Projects } from '@/lib/api'
+import {
+  fetchCreateTask,
+  fetchProfile,
+  ProjectMember,
+  Projects,
+  UserProfile,
+} from '@/lib/api'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { useModal } from '@/components/providers/ModalProvider'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Label } from '../ui/label'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,11 +53,28 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
     onError: () => setErreur('Une erreur est survenue, veuillez réessayer'),
   })
 
+  const { data } = useQuery<UserProfile>({
+    queryKey: ['user'],
+    queryFn: fetchProfile,
+  })
+
+  useEffect(() => {
+    if (!data?.data?.user?.id) return
+    const currentMember = project.members.find(
+      (m) => m.user.id === data.data.user.id
+    )
+    if (currentMember) {
+      setSelectedUsers([currentMember])
+      setValue('assigneeIds', [currentMember.user.id])
+    }
+  }, [data])
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<Input>({
     resolver: zodResolver(schema),
     mode: 'onTouched',
@@ -66,7 +89,7 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div className="flex flex-col gap-3">
-          <Label>Titre </Label>
+          <Label>Titre * </Label>
           <Input
             {...register('title')}
             className={`border rounded-lg bg-white h-12 pr-10 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
@@ -147,11 +170,15 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
           {selectedUsers.map((user) => (
             <div key={user.id} className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-[#FFE8D9] flex items-center justify-center text-xs font-medium uppercase ring-2 ring-white shrink-0">
-                {getInitiales(user.user.name ?? '')}
+                {getInitiales(user.user.name ?? user.user.email)}
               </div>
               <span className="text-sm">
-                <span className="hidden sm:inline">{user.user.email}</span>
-                <span className="sm:hidden">{user.user.name}</span>
+                <span className="hidden sm:inline">
+                  {user.user.name ?? user.user.email}
+                </span>
+                <span className="sm:hidden">
+                  {user.user.name ?? user.user.email}
+                </span>
               </span>
               <button
                 type="button"
@@ -169,9 +196,14 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
 
         <Button
           type="submit"
-          className="w-fit h-12 px-8 rounded-[10px] bg-gray-200 text-gray-500 hover:bg-[#1F1F1F] hover:text-white transition-colors"
+          disabled={!watch('title')}
+          className={`w-fit h-12 px-8 rounded-[10px] transition-colors ${
+            watch('title')
+              ? 'bg-[#1F1F1F] text-white'
+              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+          }`}
         >
-          Ajouter un projet
+          Ajouter une tâche
         </Button>
       </form>
     </>

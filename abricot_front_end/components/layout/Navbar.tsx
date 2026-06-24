@@ -10,6 +10,7 @@ import { fetchProfile } from '@/lib/api'
 import { useState } from 'react'
 import Cookie from 'js-cookie'
 import { useRouter } from 'next/navigation'
+import { getInitiales } from '@/lib/utils'
 
 export default function Header() {
   // usePathname récupère le chemin de la page actuelle
@@ -31,13 +32,15 @@ export default function Header() {
     <nav className="relative flex items-center justify-between px-4 lg:px-[100px] py-[8px] h-[94px] bg-white w-full">
       <div className="flex items-center gap-4">
         {/* Logo — s'adapte (mobile -> desktop) via les classes responsive */}
-        <Image
-          src={logo}
-          alt="Abricot"
-          width={147}
-          height={18}
-          className="w-[90px] sm:w-[147px]"
-        />
+        <Link href="/dashboard">
+          <Image
+            src={logo}
+            alt="Abricot"
+            width={147}
+            height={18}
+            className="w-[90px] sm:w-[147px]"
+          />
+        </Link>
       </div>
 
       <div className="flex gap-4">
@@ -98,8 +101,8 @@ export default function Header() {
           }`}
         >
           {data?.data?.user?.name
-            ? data.data.user.name.slice(0, 2)
-            : data?.data?.user?.email?.slice(0, 2)}
+            ? getInitiales(data.data.user.name)
+            : data?.data?.user?.email?.slice(0, 2).toUpperCase()}
         </div>
 
         {open && (

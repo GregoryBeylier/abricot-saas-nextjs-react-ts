@@ -56,10 +56,12 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
           {task.assignees.map((assignee) => (
             <div key={assignee.id} className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium uppercase">
-                {assignee.user.name ? getInitiales(assignee.user.name) : '?'}
+                {assignee.user.name
+                  ? getInitiales(assignee.user.name)
+                  : getInitiales(assignee.user.email)}
               </div>
               <div className="bg-gray-100 px-3 py-1 rounded-full">
-                {assignee.user.name}
+                {assignee.user.name ?? assignee.user.email}
               </div>
             </div>
           ))}
@@ -82,19 +84,21 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
 
         {menuOpen && (
           <div className="absolute right-0 top-0 mt-8 bg-white rounded-xl shadow-lg border p-2 flex flex-col gap-1 min-w-[180px] z-50">
-            {/* {(userRole === 'OWNER' || userRole === 'ADMIN') && ( */}
-            <button
-              onClick={() => {
-                if (!project) return
-                setContentModal(<ModalEditTask task={task} project={project} />)
-                setOpenModal(true)
-                setMenuOpen(false)
-              }}
-              className="px-4 py-2 text-sm hover:bg-gray-100 rounded-lg text-left"
-            >
-              Modifier la tâche
-            </button>
-            {/* )} */}
+            {userRole === 'ADMIN' && (
+              <button
+                onClick={() => {
+                  if (!project) return
+                  setContentModal(
+                    <ModalEditTask task={task} project={project} />
+                  )
+                  setOpenModal(true)
+                  setMenuOpen(false)
+                }}
+                className="px-4 py-2 text-sm hover:bg-gray-100 rounded-lg text-left"
+              >
+                Modifier la tâche
+              </button>
+            )}
             <button
               onClick={() => {
                 mutateRemoveProject()

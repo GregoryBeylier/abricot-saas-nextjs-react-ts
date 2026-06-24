@@ -21,9 +21,13 @@ export default function VueListe() {
 
   // État local pour filtrer la liste des tâches
   const [search, setSearch] = useState('')
-  const tasksFiltrees = tasks?.filter((task) =>
-    task.title.toLowerCase().includes(search.toLowerCase())
-  )
+  const tasksFiltrees = tasks?.filter((task) => {
+    const q = search.toLowerCase()
+    return (
+      task.title.toLowerCase().includes(q) ||
+      task.description?.toLowerCase().includes(q)
+    )
+  })
 
   // useQuery récupère les projets et leurs tâches pour obtenir les noms de projets
   const { data: projectsData } = useQuery<ProjectsWithTasksResponse>({

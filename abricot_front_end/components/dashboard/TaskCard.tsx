@@ -1,10 +1,12 @@
+'use client'
 import type { Task } from '@/lib/api'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Button } from '@/components/ui/button'
 import StatusBadge from '@/components/ui/StatusBadge'
 import { Folder, Calendar, MessageSquare } from 'lucide-react'
-import Link from 'next/link'
+import { useModal } from '@/components/providers/ModalProvider'
+import ModalViewTask from '@/components/modal/ModalViewTask'
+import { Button } from '@/components/ui/button'
 
 interface TaskCardProps {
   task: Task
@@ -17,6 +19,13 @@ export default function TaskCard({
   variant_style,
   projectName,
 }: TaskCardProps) {
+  const { setOpenModal, setContentModal } = useModal()
+
+  const handleVoir = () => {
+    setContentModal(<ModalViewTask task={task} projectName={projectName} />)
+    setOpenModal(true)
+  }
+
   return (
     <>
       {variant_style === 'flex-col' ? (
@@ -46,12 +55,12 @@ export default function TaskCard({
             />
             <span>{task.comments.length}</span>
           </div>
-          <Link
-            href={`/projects/${task.projectId}`}
+          <Button
+            onClick={handleVoir}
             className="self-start h-[40px] rounded-[10px] px-[32px] bg-[#1F1F1F] text-white flex items-center"
           >
             Voir
-          </Link>
+          </Button>
         </div>
       ) : (
         <div className="flex flex-col min-[321px]:flex-row justify-between h-full gap-4">
@@ -91,12 +100,12 @@ export default function TaskCard({
           </div>
           <div className="flex min-[321px]:flex-col items-center min-[321px]:items-end justify-between py-2 min-h-[80px] min-[321px]:min-h-[120px] flex-shrink-0">
             <StatusBadge status={task.status} />
-            <Link
-              href={`/projects/${task.projectId}`}
+            <Button
+              onClick={handleVoir}
               className="self-start h-[40px] rounded-[10px] px-[32px] bg-[#1F1F1F] text-white flex items-center"
             >
               Voir
-            </Link>
+            </Button>
           </div>
         </div>
       )}

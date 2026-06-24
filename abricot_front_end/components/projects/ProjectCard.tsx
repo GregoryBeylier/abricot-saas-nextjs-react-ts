@@ -56,7 +56,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 project.owner.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
               }`}
             >
-              {project.owner.name ? getInitiales(project.owner.name) : '?'}
+              {project?.owner?.name
+                ? getInitiales(project.owner.name)
+                : getInitiales(project?.owner?.email ?? '')}
             </div>
             <RoleBadge role={project.userRole} />
             <div className="flex items-center">
@@ -70,7 +72,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                       member.user.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
                     }`}
                   >
-                    {member.user.name ? getInitiales(member.user.name) : '?'}
+                    {member.user.name
+                      ? getInitiales(member.user.name)
+                      : getInitiales(member.user.email)}
                   </div>
                 ))}
             </div>
