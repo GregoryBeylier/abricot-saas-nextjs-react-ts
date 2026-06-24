@@ -27,7 +27,7 @@ export default function VueListe() {
 
   // useQuery récupère les projets et leurs tâches pour obtenir les noms de projets
   const { data: projectsData } = useQuery<ProjectsWithTasksResponse>({
-    queryKey: ['projcts'],
+    queryKey: ['projects-with-tasks'],
     queryFn: fetchProjectsWithTasks,
   })
 
