@@ -16,6 +16,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     queryFn: fetchProfile,
   })
 
+  const total = project._count?.tasks ?? 0
+  const completed = project.completedTasks ?? 0
+  const progression = total > 0 ? Math.round((completed / total) * 100) : 0
+
   const userId = data?.data?.user?.id
 
   return (
@@ -27,14 +31,17 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </p>
         <div className="mt-8 flex-1">
           <div className="flex justify-between text-sm text-gray-500 mb-1">
+            <span>{progression}%</span>
             <span>Progression</span>
-            <span>0%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-1.5">
-            <div className="bg-[#D3590B] h-1.5 rounded-full w-0" />
+            <div
+              className="bg-[#D3590B] h-1.5 rounded-full"
+              style={{ width: `${progression}%` }}
+            />
           </div>
           <p className="text-xs text-gray-400 mt-1 mb-10">
-            0 / {project._count?.tasks} tâches terminées
+            {completed} / {total} tâches terminées
           </p>
         </div>
         <div className="mt-6">

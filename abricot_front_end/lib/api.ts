@@ -152,6 +152,7 @@ export interface Projects {
   }
   members: ProjectMember[]
   _count: { tasks: number }
+  completedTasks: number
   userRole: string
 }
 

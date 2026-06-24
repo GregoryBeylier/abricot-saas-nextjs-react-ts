@@ -1,15 +1,15 @@
-import { Request, Response } from "express";
-import prisma from "../lib/prisma";
+import { Request, Response } from 'express'
+import prisma from '../lib/prisma'
 import {
   CreateProjectRequest,
   UpdateProjectRequest,
   AddContributorRequest,
   AuthRequest,
-} from "../types";
+} from '../types'
 import {
   validateCreateProjectData,
   validateUpdateProjectData,
-} from "../utils/validation";
+} from '../utils/validation'
 import {
   hasProjectAccess,
   isProjectAdmin,
@@ -17,13 +17,13 @@ import {
   canModifyProject,
   canDeleteProject,
   getUserProjectRole,
-} from "../utils/permissions";
+} from '../utils/permissions'
 import {
   sendSuccess,
   sendError,
   sendValidationError,
   sendServerError,
-} from "../utils/response";
+} from '../utils/response'
 
 /**
  * @swagger
@@ -87,12 +87,12 @@ export const createProject = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { name, description, contributors }: CreateProjectRequest = req.body;
-    const authReq = req as AuthRequest;
+    const { name, description, contributors }: CreateProjectRequest = req.body
+    const authReq = req as AuthRequest
 
     if (!authReq.user) {
-      sendError(res, "Utilisateur non authentifié", "UNAUTHORIZED", 401);
-      return;
+      sendError(res, 'Utilisateur non authentifié', 'UNAUTHORIZED', 401)
+      return
     }
 
     // Validation des données
@@ -100,14 +100,14 @@ export const createProject = async (
       name,
       description,
       contributors,
-    });
+    })
     if (validationErrors.length > 0) {
       sendValidationError(
         res,
-        "Données de création de projet invalides",
+        'Données de création de projet invalides',
         validationErrors
-      );
-      return;
+      )
+      return
     }
 
     // Créer le projet
@@ -137,7 +137,7 @@ export const createProject = async (
           },
         },
       },
-    });
+    })
 
     // Ajouter les contributeurs si fournis
     if (contributors && contributors.length > 0) {
@@ -151,7 +151,7 @@ export const createProject = async (
           id: true,
           email: true,
         },
-      });
+      })
 
       if (contributorUsers.length > 0) {
         // Créer les membres un par un pour éviter les doublons
@@ -161,12 +161,12 @@ export const createProject = async (
               data: {
                 userId: user.id,
                 projectId: project.id,
-                role: "CONTRIBUTOR",
+                role: 'CONTRIBUTOR',
               },
-            });
+            })
           } catch (error) {
             // Ignorer les erreurs de doublons
-            console.log(`Utilisateur ${user.email} déjà membre du projet`);
+            console.log(`Utilisateur ${user.email} déjà membre du projet`)
           }
         }
       }
@@ -200,19 +200,19 @@ export const createProject = async (
           },
         },
       },
-    });
+    })
 
     sendSuccess(
       res,
-      "Projet créé avec succès",
+      'Projet créé avec succès',
       { project: projectWithMembers },
       201
-    );
+    )
   } catch (error) {
-    console.error("Erreur lors de la création du projet:", error);
-    sendServerError(res, "Erreur lors de la création du projet");
+    console.error('Erreur lors de la création du projet:', error)
+    sendServerError(res, 'Erreur lors de la création du projet')
   }
-};
+}
 
 /**
  * @swagger
@@ -251,11 +251,11 @@ export const getProjects = async (
   res: Response
 ): Promise<void> => {
   try {
-    const authReq = req as AuthRequest;
+    const authReq = req as AuthRequest
 
     if (!authReq.user) {
-      sendError(res, "Utilisateur non authentifié", "UNAUTHORIZED", 401);
-      return;
+      sendError(res, 'Utilisateur non authentifié', 'UNAUTHORIZED', 401)
+      return
     }
 
     const projects = await prisma.project.findMany({
@@ -297,29 +297,33 @@ export const getProjects = async (
         },
       },
       orderBy: {
-        updatedAt: "desc",
+        updatedAt: 'desc',
       },
-    });
+    })
 
     // Ajouter le rôle de l'utilisateur pour chaque projet
     const projectsWithRoles = await Promise.all(
       projects.map(async (project) => {
-        const role = await getUserProjectRole(authReq.user!.id, project.id);
+        const role = await getUserProjectRole(authReq.user!.id, project.id)
+        const completedTasks = await prisma.task.count({
+          where: { projectId: project.id, status: 'DONE' },
+        })
         return {
           ...project,
           userRole: role,
-        };
+          completedTasks,
+        }
       })
-    );
+    )
 
-    sendSuccess(res, "Projets récupérés avec succès", {
+    sendSuccess(res, 'Projets récupérés avec succès', {
       projects: projectsWithRoles,
-    });
+    })
   } catch (error) {
-    console.error("Erreur lors de la récupération des projets:", error);
-    sendServerError(res, "Erreur lors de la récupération des projets");
+    console.error('Erreur lors de la récupération des projets:', error)
+    sendServerError(res, 'Erreur lors de la récupération des projets')
   }
-};
+}
 
 /**
  * Récupérer un projet spécifique
@@ -330,19 +334,19 @@ export const getProject = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
-    const authReq = req as AuthRequest;
+    const { id } = req.params
+    const authReq = req as AuthRequest
 
     if (!authReq.user) {
-      sendError(res, "Utilisateur non authentifié", "UNAUTHORIZED", 401);
-      return;
+      sendError(res, 'Utilisateur non authentifié', 'UNAUTHORIZED', 401)
+      return
     }
 
     // Vérifier l'accès au projet
-    const hasAccess = await hasProjectAccess(authReq.user.id, id);
+    const hasAccess = await hasProjectAccess(authReq.user.id, id)
     if (!hasAccess) {
-      sendError(res, "Accès refusé au projet", "FORBIDDEN", 403);
-      return;
+      sendError(res, 'Accès refusé au projet', 'FORBIDDEN', 403)
+      return
     }
 
     const project = await prisma.project.findUnique({
@@ -377,7 +381,7 @@ export const getProject = async (
             },
           },
           orderBy: {
-            createdAt: "desc",
+            createdAt: 'desc',
           },
         },
         _count: {
@@ -386,24 +390,24 @@ export const getProject = async (
           },
         },
       },
-    });
+    })
 
     if (!project) {
-      sendError(res, "Projet non trouvé", "PROJECT_NOT_FOUND", 404);
-      return;
+      sendError(res, 'Projet non trouvé', 'PROJECT_NOT_FOUND', 404)
+      return
     }
 
     // Ajouter le rôle de l'utilisateur
-    const role = await getUserProjectRole(authReq.user.id, id);
+    const role = await getUserProjectRole(authReq.user.id, id)
 
-    sendSuccess(res, "Projet récupéré avec succès", {
+    sendSuccess(res, 'Projet récupéré avec succès', {
       project: { ...project, userRole: role },
-    });
+    })
   } catch (error) {
-    console.error("Erreur lors de la récupération du projet:", error);
-    sendServerError(res, "Erreur lors de la récupération du projet");
+    console.error('Erreur lors de la récupération du projet:', error)
+    sendServerError(res, 'Erreur lors de la récupération du projet')
   }
-};
+}
 
 /**
  * Mettre à jour un projet
@@ -414,45 +418,45 @@ export const updateProject = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
-    const { name, description }: UpdateProjectRequest = req.body;
-    const authReq = req as AuthRequest;
+    const { id } = req.params
+    const { name, description }: UpdateProjectRequest = req.body
+    const authReq = req as AuthRequest
 
     if (!authReq.user) {
-      sendError(res, "Utilisateur non authentifié", "UNAUTHORIZED", 401);
-      return;
+      sendError(res, 'Utilisateur non authentifié', 'UNAUTHORIZED', 401)
+      return
     }
 
     // Validation des données
-    const validationErrors = validateUpdateProjectData({ name, description });
+    const validationErrors = validateUpdateProjectData({ name, description })
     if (validationErrors.length > 0) {
       sendValidationError(
         res,
-        "Données de mise à jour invalides",
+        'Données de mise à jour invalides',
         validationErrors
-      );
-      return;
+      )
+      return
     }
 
     // Vérifier les permissions
-    const canModify = await canModifyProject(authReq.user.id, id);
+    const canModify = await canModifyProject(authReq.user.id, id)
     if (!canModify) {
       sendError(
         res,
         "Vous n'avez pas les permissions pour modifier ce projet",
-        "FORBIDDEN",
+        'FORBIDDEN',
         403
-      );
-      return;
+      )
+      return
     }
 
     // Préparer les données de mise à jour
-    const updateData: any = {};
+    const updateData: any = {}
     if (name !== undefined) {
-      updateData.name = name.trim();
+      updateData.name = name.trim()
     }
     if (description !== undefined) {
-      updateData.description = description?.trim() || null;
+      updateData.description = description?.trim() || null
     }
 
     const updatedProject = await prisma.project.update({
@@ -483,16 +487,16 @@ export const updateProject = async (
           },
         },
       },
-    });
+    })
 
-    sendSuccess(res, "Projet mis à jour avec succès", {
+    sendSuccess(res, 'Projet mis à jour avec succès', {
       project: updatedProject,
-    });
+    })
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du projet:", error);
-    sendServerError(res, "Erreur lors de la mise à jour du projet");
+    console.error('Erreur lors de la mise à jour du projet:', error)
+    sendServerError(res, 'Erreur lors de la mise à jour du projet')
   }
-};
+}
 
 /**
  * Supprimer un projet
@@ -503,37 +507,37 @@ export const deleteProject = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
-    const authReq = req as AuthRequest;
+    const { id } = req.params
+    const authReq = req as AuthRequest
 
     if (!authReq.user) {
-      sendError(res, "Utilisateur non authentifié", "UNAUTHORIZED", 401);
-      return;
+      sendError(res, 'Utilisateur non authentifié', 'UNAUTHORIZED', 401)
+      return
     }
 
     // Vérifier les permissions
-    const canDelete = await canDeleteProject(authReq.user.id, id);
+    const canDelete = await canDeleteProject(authReq.user.id, id)
     if (!canDelete) {
       sendError(
         res,
         "Vous n'avez pas les permissions pour supprimer ce projet",
-        "FORBIDDEN",
+        'FORBIDDEN',
         403
-      );
-      return;
+      )
+      return
     }
 
     // Supprimer le projet (les relations seront supprimées automatiquement grâce à onDelete: Cascade)
     await prisma.project.delete({
       where: { id },
-    });
+    })
 
-    sendSuccess(res, "Projet supprimé avec succès");
+    sendSuccess(res, 'Projet supprimé avec succès')
   } catch (error) {
-    console.error("Erreur lors de la suppression du projet:", error);
-    sendServerError(res, "Erreur lors de la suppression du projet");
+    console.error('Erreur lors de la suppression du projet:', error)
+    sendServerError(res, 'Erreur lors de la suppression du projet')
   }
-};
+}
 
 /**
  * Ajouter un contributeur à un projet
@@ -544,35 +548,35 @@ export const addContributor = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
-    const { email, role = "CONTRIBUTOR" }: AddContributorRequest = req.body;
-    const authReq = req as AuthRequest;
+    const { id } = req.params
+    const { email, role = 'CONTRIBUTOR' }: AddContributorRequest = req.body
+    const authReq = req as AuthRequest
 
     if (!authReq.user) {
-      sendError(res, "Utilisateur non authentifié", "UNAUTHORIZED", 401);
-      return;
+      sendError(res, 'Utilisateur non authentifié', 'UNAUTHORIZED', 401)
+      return
     }
 
     // Vérifier les permissions
-    const canModify = await canModifyProject(authReq.user.id, id);
+    const canModify = await canModifyProject(authReq.user.id, id)
     if (!canModify) {
       sendError(
         res,
         "Vous n'avez pas les permissions pour modifier ce projet",
-        "FORBIDDEN",
+        'FORBIDDEN',
         403
-      );
-      return;
+      )
+      return
     }
 
     // Vérifier que l'utilisateur existe
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
-    });
+    })
 
     if (!user) {
-      sendError(res, "Utilisateur non trouvé", "USER_NOT_FOUND", 404);
-      return;
+      sendError(res, 'Utilisateur non trouvé', 'USER_NOT_FOUND', 404)
+      return
     }
 
     // Vérifier que l'utilisateur n'est pas déjà membre
@@ -583,16 +587,16 @@ export const addContributor = async (
           projectId: id,
         },
       },
-    });
+    })
 
     if (existingMember) {
       sendError(
         res,
         "L'utilisateur est déjà membre de ce projet",
-        "USER_ALREADY_MEMBER",
+        'USER_ALREADY_MEMBER',
         409
-      );
-      return;
+      )
+      return
     }
 
     // Ajouter le membre
@@ -600,16 +604,16 @@ export const addContributor = async (
       data: {
         userId: user.id,
         projectId: id,
-        role: role as "ADMIN" | "CONTRIBUTOR",
+        role: role as 'ADMIN' | 'CONTRIBUTOR',
       },
-    });
+    })
 
-    sendSuccess(res, "Contributeur ajouté avec succès");
+    sendSuccess(res, 'Contributeur ajouté avec succès')
   } catch (error) {
-    console.error("Erreur lors de l'ajout du contributeur:", error);
-    sendServerError(res, "Erreur lors de l'ajout du contributeur");
+    console.error("Erreur lors de l'ajout du contributeur:", error)
+    sendServerError(res, "Erreur lors de l'ajout du contributeur")
   }
-};
+}
 
 /**
  * Retirer un contributeur d'un projet
@@ -620,36 +624,36 @@ export const removeContributor = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id, userId } = req.params;
-    const authReq = req as AuthRequest;
+    const { id, userId } = req.params
+    const authReq = req as AuthRequest
 
     if (!authReq.user) {
-      sendError(res, "Utilisateur non authentifié", "UNAUTHORIZED", 401);
-      return;
+      sendError(res, 'Utilisateur non authentifié', 'UNAUTHORIZED', 401)
+      return
     }
 
     // Vérifier les permissions
-    const canModify = await canModifyProject(authReq.user.id, id);
+    const canModify = await canModifyProject(authReq.user.id, id)
     if (!canModify) {
       sendError(
         res,
         "Vous n'avez pas les permissions pour modifier ce projet",
-        "FORBIDDEN",
+        'FORBIDDEN',
         403
-      );
-      return;
+      )
+      return
     }
 
     // Vérifier que l'utilisateur n'essaie pas de se retirer lui-même s'il est propriétaire
-    const isOwner = await isProjectOwner(authReq.user.id, id);
+    const isOwner = await isProjectOwner(authReq.user.id, id)
     if (isOwner && authReq.user.id === userId) {
       sendError(
         res,
-        "Le propriétaire du projet ne peut pas se retirer",
-        "CANNOT_REMOVE_OWNER",
+        'Le propriétaire du projet ne peut pas se retirer',
+        'CANNOT_REMOVE_OWNER',
         400
-      );
-      return;
+      )
+      return
     }
 
     // Supprimer le membre
@@ -658,14 +662,14 @@ export const removeContributor = async (
         userId,
         projectId: id,
       },
-    });
+    })
 
-    sendSuccess(res, "Contributeur retiré avec succès");
+    sendSuccess(res, 'Contributeur retiré avec succès')
   } catch (error) {
-    console.error("Erreur lors du retrait du contributeur:", error);
-    sendServerError(res, "Erreur lors du retrait du contributeur");
+    console.error('Erreur lors du retrait du contributeur:', error)
+    sendServerError(res, 'Erreur lors du retrait du contributeur')
   }
-};
+}
 
 /**
  * @swagger
@@ -719,28 +723,28 @@ export const searchUsers = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { query } = req.query;
-    const authReq = req as AuthRequest;
+    const { query } = req.query
+    const authReq = req as AuthRequest
 
     if (!authReq.user) {
-      sendError(res, "Utilisateur non authentifié", "UNAUTHORIZED", 401);
-      return;
+      sendError(res, 'Utilisateur non authentifié', 'UNAUTHORIZED', 401)
+      return
     }
 
-    if (!query || typeof query !== "string") {
-      sendError(res, "Paramètre de recherche requis", "MISSING_QUERY", 400);
-      return;
+    if (!query || typeof query !== 'string') {
+      sendError(res, 'Paramètre de recherche requis', 'MISSING_QUERY', 400)
+      return
     }
 
-    const searchQuery = query.trim();
+    const searchQuery = query.trim()
     if (searchQuery.length < 2) {
       sendError(
         res,
-        "La recherche doit contenir au moins 2 caractères",
-        "INVALID_QUERY",
+        'La recherche doit contenir au moins 2 caractères',
+        'INVALID_QUERY',
         400
-      );
-      return;
+      )
+      return
     }
 
     const users = await prisma.user.findMany({
@@ -764,12 +768,12 @@ export const searchUsers = async (
         name: true,
       },
       take: 10, // Limiter à 10 résultats
-      orderBy: [{ name: "asc" }, { email: "asc" }],
-    });
+      orderBy: [{ name: 'asc' }, { email: 'asc' }],
+    })
 
-    sendSuccess(res, "Utilisateurs trouvés", { users });
+    sendSuccess(res, 'Utilisateurs trouvés', { users })
   } catch (error) {
-    console.error("Erreur lors de la recherche d'utilisateurs:", error);
-    sendServerError(res, "Erreur lors de la recherche d'utilisateurs");
+    console.error("Erreur lors de la recherche d'utilisateurs:", error)
+    sendServerError(res, "Erreur lors de la recherche d'utilisateurs")
   }
-};
+}
