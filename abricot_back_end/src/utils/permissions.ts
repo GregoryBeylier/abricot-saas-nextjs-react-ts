@@ -1,5 +1,5 @@
-import { Role } from "../types";
-import prisma from "../lib/prisma";
+import { Role } from '../types'
+import prisma from '../lib/prisma'
 
 /**
  * Vérifie si un utilisateur a accès à un projet
@@ -26,14 +26,14 @@ export const hasProjectAccess = async (
           },
         ],
       },
-    });
+    })
 
-    return !!project;
+    return !!project
   } catch (error) {
-    console.error("Erreur lors de la vérification d'accès au projet:", error);
-    return false;
+    console.error("Erreur lors de la vérification d'accès au projet:", error)
+    return false
   }
-};
+}
 
 /**
  * Vérifie si un utilisateur est administrateur d'un projet
@@ -61,14 +61,14 @@ export const isProjectAdmin = async (
           },
         ],
       },
-    });
+    })
 
-    return !!project;
+    return !!project
   } catch (error) {
-    console.error("Erreur lors de la vérification des droits d'admin:", error);
-    return false;
+    console.error("Erreur lors de la vérification des droits d'admin:", error)
+    return false
   }
-};
+}
 
 /**
  * Vérifie si un utilisateur est propriétaire d'un projet
@@ -86,14 +86,14 @@ export const isProjectOwner = async (
         id: projectId,
         ownerId: userId,
       },
-    });
+    })
 
-    return !!project;
+    return !!project
   } catch (error) {
-    console.error("Erreur lors de la vérification de propriété:", error);
-    return false;
+    console.error('Erreur lors de la vérification de propriété:', error)
+    return false
   }
-};
+}
 
 /**
  * Vérifie si un utilisateur peut créer des tâches dans un projet
@@ -105,8 +105,8 @@ export const canCreateTasks = async (
   userId: string,
   projectId: string
 ): Promise<boolean> => {
-  return await hasProjectAccess(userId, projectId);
-};
+  return await hasProjectAccess(userId, projectId)
+}
 
 /**
  * Vérifie si un utilisateur peut modifier/supprimer des tâches dans un projet
@@ -118,8 +118,15 @@ export const canModifyTasks = async (
   userId: string,
   projectId: string
 ): Promise<boolean> => {
-  return await hasProjectAccess(userId, projectId);
-};
+  return await hasProjectAccess(userId, projectId)
+}
+
+export const canEditTask = async (
+  userId: string,
+  projectId: string
+): Promise<boolean> => {
+  return await isProjectAdmin(userId, projectId)
+}
 
 /**
  * Vérifie si un utilisateur peut modifier un projet
@@ -131,8 +138,8 @@ export const canModifyProject = async (
   userId: string,
   projectId: string
 ): Promise<boolean> => {
-  return await isProjectAdmin(userId, projectId);
-};
+  return await isProjectAdmin(userId, projectId)
+}
 
 /**
  * Vérifie si un utilisateur peut supprimer un projet
@@ -144,8 +151,8 @@ export const canDeleteProject = async (
   userId: string,
   projectId: string
 ): Promise<boolean> => {
-  return await isProjectOwner(userId, projectId);
-};
+  return await isProjectOwner(userId, projectId)
+}
 
 /**
  * Récupère le rôle d'un utilisateur dans un projet
@@ -159,9 +166,9 @@ export const getUserProjectRole = async (
 ): Promise<Role | null> => {
   try {
     // Vérifier si l'utilisateur est propriétaire
-    const isOwner = await isProjectOwner(userId, projectId);
+    const isOwner = await isProjectOwner(userId, projectId)
     if (isOwner) {
-      return Role.ADMIN;
+      return Role.ADMIN
     }
 
     // Vérifier le rôle dans les membres
@@ -170,11 +177,11 @@ export const getUserProjectRole = async (
         userId: userId,
         projectId: projectId,
       },
-    });
+    })
 
-    return membership ? (membership.role as Role) : null;
+    return membership ? (membership.role as Role) : null
   } catch (error) {
-    console.error("Erreur lors de la récupération du rôle:", error);
-    return null;
+    console.error('Erreur lors de la récupération du rôle:', error)
+    return null
   }
-};
+}

@@ -13,9 +13,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 interface TaskRowProps {
   task: ProjectTask
   project: Projects
+  userRole: string
 }
 
-export default function TaskRow({ task, project }: TaskRowProps) {
+export default function TaskRow({ task, project, userRole }: TaskRowProps) {
   // Ouvrir/fermer commentaire
   const [open, setOpen] = useState(false)
 
@@ -81,6 +82,7 @@ export default function TaskRow({ task, project }: TaskRowProps) {
 
         {menuOpen && (
           <div className="absolute right-0 top-0 mt-8 bg-white rounded-xl shadow-lg border p-2 flex flex-col gap-1 min-w-[180px] z-50">
+            {/* {(userRole === 'OWNER' || userRole === 'ADMIN') && ( */}
             <button
               onClick={() => {
                 if (!project) return
@@ -92,7 +94,7 @@ export default function TaskRow({ task, project }: TaskRowProps) {
             >
               Modifier la tâche
             </button>
-
+            {/* )} */}
             <button
               onClick={() => {
                 mutateRemoveProject()

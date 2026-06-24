@@ -1,7 +1,12 @@
 'use client'
-import { JSX, use, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { fetchProjectTasks, fetchProjects, fetchProfile } from '@/lib/api'
+import { use, useState, useEffect } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  fetchProjectTasks,
+  fetchProjects,
+  fetchProfile,
+  fetchDeleteProject,
+} from '@/lib/api'
 import type { ProjectTasksResponse, ProjectsResponse } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import {
@@ -36,9 +41,10 @@ export default function ProjectPage({
   })
   const tasks = data?.data?.tasks ?? []
 
-  const { data: projectsData } = useQuery<ProjectsResponse>({
+  const { data: projectsData, isSuccess } = useQuery<ProjectsResponse>({
     queryKey: ['projects'],
     queryFn: fetchProjects,
+    staleTime: 0,
   })
 
   const { data: profileData } = useQuery({
@@ -52,12 +58,38 @@ export default function ProjectPage({
   // État local pour filtrer la liste des tâches
   const [search, setSearch] = useState('')
   const [statusFiltre, setStatusFiltre] = useState<Status | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const queryClient = useQueryClient()
+  const { mutate: deleteProject } = useMutation({
+    mutationFn: () => fetchDeleteProject(id),
+    onSuccess: () => {
+      router.push('/projects')
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+    },
+  })
+
   const tasksFiltrees = tasks?.filter(
     (task) =>
       task.title.toLowerCase().includes(search.toLowerCase()) &&
       (statusFiltre === null || task.status === statusFiltre)
   )
-
+  if (!isSuccess) return null
+  if (isSuccess && !project)
+    return (
+      <div className="flex items-center justify-center h-screen flex-col gap-4">
+        <p className="text-xl font-semibold">Accès refusé</p>
+        <p className="text-gray-500 text-sm">
+          Vous n'avez pas accès à ce projet.
+        </p>
+        <button
+          onClick={() => router.push('/projects')}
+          className="text-[var(--color-abricot)] underline text-sm"
+        >
+          Retour aux projets
+        </button>
+      </div>
+    )
   return (
     <div className="min-w-[280px] w-full px-4 lg:px-[112px] pt-[80px] pb-[50px]">
       {/* Header */}
@@ -72,16 +104,44 @@ export default function ProjectPage({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-semibold text-xl">{project?.name}</h1>
-              <a
-                onClick={() => {
-                  if (!project) return
-                  setContentModal(<ModalEditProject project={project} />)
-                  setOpenModal(true)
-                }}
-                className="text-sm text-[var(--color-abricot)] underline"
-              >
-                modifier
-              </a>
+              {(project?.userRole === 'OWNER' ||
+                project?.userRole === 'ADMIN') && (
+                <div className="relative">
+                  <a
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    className="text-sm text-[var(--color-abricot)] underline cursor-pointer"
+                  >
+                    modifier
+                  </a>
+                  {menuOpen && (
+                    <div className="absolute left-0 mt-1 bg-white border rounded-lg shadow-lg z-10 w-48">
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false)
+                          setContentModal(
+                            <ModalEditProject project={project} />
+                          )
+                          setOpenModal(true)
+                        }}
+                        className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50"
+                      >
+                        Modifier le projet
+                      </button>
+                      {project?.userRole === 'OWNER' && (
+                        <button
+                          onClick={() => {
+                            setMenuOpen(false)
+                            deleteProject()
+                          }}
+                          className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-gray-50"
+                        >
+                          Supprimer le projet
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <p className="text-sm text-gray-500 mt-1">{project?.description}</p>
           </div>
@@ -193,7 +253,12 @@ export default function ProjectPage({
       <div className="flex flex-col gap-4">
         {project &&
           tasksFiltrees.map((task) => (
-            <TaskRow key={task.id} task={task} project={project} />
+            <TaskRow
+              key={task.id}
+              task={task}
+              project={project}
+              userRole={project.userRole}
+            />
           ))}
       </div>
     </div>

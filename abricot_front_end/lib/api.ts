@@ -291,6 +291,13 @@ export function fetchUpdateProject(
   })
 }
 
+//supprime le projets complet
+export async function fetchDeleteProject(
+  projectId: string
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/projects/${projectId}`, { method: 'DELETE', auth: true })
+}
+
 // ─── Contributeurs ───────────────────────────────────────────────────────────
 
 export interface AddContributorBody {
