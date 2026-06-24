@@ -59,7 +59,7 @@ export default function ProjectPage({
   )
 
   return (
-    <div className="bg-[#F9FAFB] min-w-[280px] w-full px-4 lg:px-[112px] pt-[80px] pb-[50px]">
+    <div className="min-w-[280px] w-full px-4 lg:px-[112px] pt-[80px] pb-[50px]">
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">

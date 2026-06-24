@@ -109,7 +109,7 @@ export default function Account() {
   }, [user, reset])
 
   return (
-    <div className="bg-[#F9FAFB] min-h-screen px-3 sm:px-4 lg:px-[112px] pt-[70px] pb-[20px]">
+    <div className="min-h-screen px-3 sm:px-4 lg:px-[112px] pt-[70px] pb-[20px]">
       <div className="bg-white rounded-xl p-4 md:p-8 w-full h-fit min-w-0">
         <h1 className="font-semibold text-xl">Mon compte</h1>
         <p className="text-gray-500 text-sm mb-6">{user?.name}</p>

@@ -6,10 +6,12 @@ import { ModalProvider } from '@/components/providers/ModalProvider'
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ModalProvider>
-      <Modal />
-      <Header />
-      <main className="flex-1">{children}</main>
-      <Footer />
+      <div className="min-h-screen flex flex-col">
+        <Modal />
+        <Header />
+        <main className="flex-1 bg-[#F9FAFB]">{children}</main>
+        <Footer />
+      </div>
     </ModalProvider>
   )
 }

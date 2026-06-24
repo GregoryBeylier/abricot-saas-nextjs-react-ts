@@ -27,7 +27,7 @@ export default function DashboardPage() {
   const { setContentModal, setOpenModal } = useModal()
 
   return (
-    <div className="bg-[#F9FAFB] px-4 lg:px-[112px] pt-[40px] pb-[50px]">
+    <div className="px-4 lg:px-[112px] pt-[40px] pb-[50px]">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div className="mt-[40px] lg:mt-[89px]">
           <h1 className="text-2xl font-semibold">Tableau de bord</h1>

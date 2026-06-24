@@ -399,3 +399,13 @@ export function fetchUpdateTask(
     }
   )
 }
+
+//pour supprimer dans une tâche existant
+export function fetchRemoveTask(
+  projectId: string,
+  taskId: string
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/projects/${projectId}/tasks/${taskId}`, {
+    method: 'DELETE',
+  })
+}
