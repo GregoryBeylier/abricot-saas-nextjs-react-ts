@@ -19,6 +19,7 @@ import TaskRow from '@/components/projects/TaskRow'
 import type { Status } from '@/components/ui/StatusBadge'
 import ModalEditProject from '@/components/modal/ModalEditProjects'
 import { useModal } from '@/components/providers/ModalProvider'
+import ModalCreateTask from '@/components/modal/ModalCreateTask'
 
 export default function ProjectPage({
   params,
@@ -86,7 +87,14 @@ export default function ProjectPage({
           </div>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center w-full md:w-auto">
-          <Button className="h-[50px] px-[30px] rounded-[10px] bg-[#1F1F1F] text-white w-full sm:w-auto">
+          <Button
+            className="h-[50px] px-[30px] rounded-[10px] bg-[#1F1F1F] text-white w-full sm:w-auto"
+            onClick={() => {
+              if (!project) return
+              setContentModal(<ModalCreateTask project={project} />)
+              setOpenModal(true)
+            }}
+          >
             Créer une tâche
           </Button>
           <Button className="h-[50px] px-[30px] rounded-[10px] bg-[#D3590B] text-white flex items-center gap-2 w-full sm:w-auto justify-center">

@@ -291,6 +291,8 @@ export function fetchUpdateProject(
   })
 }
 
+// ─── Contributeurs ───────────────────────────────────────────────────────────
+
 export interface AddContributorBody {
   email: string
   role?: 'ADMIN' | 'CONTRIBUTOR'
@@ -300,8 +302,6 @@ export interface AddContributorResponse {
   success: boolean
   message: string
 }
-
-// ─── Contributeurs ───────────────────────────────────────────────────────────
 
 //pour ajouter dans un projet existant
 export function fetchAddContributor(
@@ -348,4 +348,28 @@ export function fetchSearchUsersProject(
   query: string
 ): Promise<SearchUserProjectResponse> {
   return apiRequest<SearchUserProjectResponse>(`/users/search?query=${query}`)
+}
+
+// ─── Contributeurs ───────────────────────────────────────────────────────────
+
+export interface AddTaskBody {
+  title: string
+  description?: string
+  dueDate?: string
+  assigneeIds?: string[]
+}
+
+export interface AddTaskBodyResponse {
+  success: boolean
+  message: string
+}
+
+export function fetchCreateTask(
+  projectId: string,
+  data: AddTaskBody
+): Promise<AddTaskBodyResponse> {
+  return apiRequest<AddTaskBodyResponse>(`/projects/${projectId}/tasks`, {
+    method: 'POST',
+    body: data,
+  })
 }
