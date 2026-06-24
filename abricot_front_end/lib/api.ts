@@ -165,7 +165,6 @@ export interface ProjectsResponse {
 // Type représentant un assigné d'une tâche de projet
 export interface Assignee {
   id: string
-  userId: string
   user: {
     id: string
     email: string
@@ -350,7 +349,7 @@ export function fetchSearchUsersProject(
   return apiRequest<SearchUserProjectResponse>(`/users/search?query=${query}`)
 }
 
-// ─── Contributeurs ───────────────────────────────────────────────────────────
+// ─── créer un tâche ───────────────────────────────────────────────────────────
 
 export interface AddTaskBody {
   title: string
@@ -372,4 +371,31 @@ export function fetchCreateTask(
     method: 'POST',
     body: data,
   })
+}
+
+export interface UpdateTaskBody {
+  title?: string
+  description?: string
+  dueDate?: string
+  status?: 'TODO' | 'IN_PROGRESS' | 'DONE'
+  assigneeIds?: string[]
+}
+
+export interface UpdateTaskBodyResponse {
+  success: boolean
+  message: string
+}
+
+export function fetchUpdateTask(
+  projectId: string,
+  taskId: string,
+  data: UpdateTaskBody
+): Promise<UpdateTaskBodyResponse> {
+  return apiRequest<UpdateTaskBodyResponse>(
+    `/projects/${projectId}/tasks/${taskId}`,
+    {
+      method: 'PUT',
+      body: data,
+    }
+  )
 }

@@ -1,12 +1,15 @@
-'use client'
-
-import { fetchCreateTask, ProjectMember, Projects } from '@/lib/api'
+import {
+  fetchUpdateTask,
+  ProjectMember,
+  Projects,
+  ProjectTask,
+} from '@/lib/api'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { useModal } from '@/components/providers/ModalProvider'
-import { useState } from 'react'
 import { Label } from '../ui/label'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,22 +20,32 @@ const schema = z.object({
   title: z.string().min(1, 'Un titre est requis'),
   description: z.string().optional(),
   dueDate: z.string().optional(),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE']).optional(),
   assigneeIds: z.array(z.string()).optional(),
 })
 
 type Input = z.infer<typeof schema>
 
-export default function ModalCreateTask({ project }: { project: Projects }) {
+interface ModalEditTaskProps {
+  task: ProjectTask
+  project: Projects
+}
+
+export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
   // useState pour gerer les message d'erreur et de reussite
   const [erreur, setErreur] = useState('')
-  const [selectedUsers, setSelectedUsers] = useState<ProjectMember[]>([])
+  const [selectedUsers, setSelectedUsers] = useState<ProjectMember[]>(
+    project.members.filter((m) =>
+      task.assignees.some((a) => a.user.id === m.user.id)
+    )
+  )
   const [query, setQuery] = useState('')
 
   const { setOpenModal } = useModal()
   const queryClient = useQueryClient()
 
-  const { mutate: mutateCreateProject } = useMutation({
-    mutationFn: (data: Input) => fetchCreateTask(project.id, data),
+  const { mutate: mutateUpdateProject } = useMutation({
+    mutationFn: (data: Input) => fetchUpdateTask(project.id, task.id, data),
     // onSuccess est appelé lorsque la modification echoue
     onSuccess: (data) => {
       if (data.success === false) {
@@ -55,14 +68,22 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
   } = useForm<Input>({
     resolver: zodResolver(schema),
     mode: 'onTouched',
+    defaultValues: {
+      title: task.title,
+      description: task.description ?? '',
+      dueDate: task.dueDate?.slice(0, 10) ?? '',
+      assigneeIds: task.assignees.map((a) => a.user.id),
+      status: task.status,
+    },
   })
 
   const onSubmit = (data: Input) => {
-    mutateCreateProject(data)
+    mutateUpdateProject(data)
   }
+
   return (
     <>
-      <h1 className="font-semibold text-xl mb-8">Créer une tâche</h1>
+      <h1 className="font-semibold text-xl mb-8">Modifier une tâche</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div className="flex flex-col gap-3">
@@ -80,7 +101,7 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
           <Label>Description </Label>
           <Input
             {...register('description')}
-            className="border rounded-lg bg-white h-12 pr-10 "
+            className="border rounded-lg bg-white h-12 pr-10"
           />
         </div>
 
@@ -89,8 +110,27 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
           <Input
             type="date"
             {...register('dueDate')}
-            className="border rounded-lg bg-white h-12 pr-10 "
+            className="border rounded-lg bg-white h-12 pr-10"
           />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <Label>Statut</Label>
+          <div className="relative flex items-center border rounded-lg">
+            <select
+              className="text-gray-500 px-4 py-3 text-sm outline-none bg-white appearance-none cursor-pointer pr-8 rounded-lg w-full"
+              {...register('status')}
+            >
+              <option value="">Statut</option>
+              <option value="TODO">À faire</option>
+              <option value="IN_PROGRESS">En cours</option>
+              <option value="DONE">Terminée</option>
+            </select>
+            <ChevronDown
+              size={16}
+              className="absolute right-2 pointer-events-none text-gray-500"
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -121,7 +161,7 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
                       className="flex items-center py-2 px-3 cursor-pointer hover:bg-gray-50"
                       onClick={() => {
                         const alreadySelected = selectedUsers.find(
-                          (u) => u.id === member.user.id
+                          (u) => u.user.id === member.user.id
                         )
                         if (alreadySelected) {
                           setErreur('Cet utilisateur est déjà ajouté')
@@ -171,7 +211,7 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
           type="submit"
           className="w-fit h-12 px-8 rounded-[10px] bg-gray-200 text-gray-500 hover:bg-[#1F1F1F] hover:text-white transition-colors"
         >
-          Ajouter un projet
+          Enregistrer
         </Button>
       </form>
     </>

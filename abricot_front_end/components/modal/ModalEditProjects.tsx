@@ -11,7 +11,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import z from 'zod'
-import { useModal } from '../providers/ModalProvider'
+import { useModal } from '@/components/providers/ModalProvider'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { getInitiales } from '@/lib/utils'
@@ -46,7 +46,8 @@ export default function ModalEditProject({ project }: { project: Projects }) {
 
   // useMutation pour ajouter un contributeur
   const { mutateAsync: mutateAddContributorsProject } = useMutation({
-    mutationFn: (data: AddContributorBody) => fetchAddContributor(project.id, data),
+    mutationFn: (data: AddContributorBody) =>
+      fetchAddContributor(project.id, data),
     onError: () => setErreur('Une erreur est survenue, veuillez réessayer'),
   })
 
@@ -83,11 +84,15 @@ export default function ModalEditProject({ project }: { project: Projects }) {
     const selectedIds = selectedUsers.map((u) => u.id)
 
     const toAdd = selectedUsers.filter((u) => !initialIds.includes(u.id))
-    const toRemove = project.members.filter((m) => !selectedIds.includes(m.user.id))
+    const toRemove = project.members.filter(
+      (m) => !selectedIds.includes(m.user.id)
+    )
 
     await Promise.all([
       mutateUpdateProject(data),
-      ...toAdd.map((u) => mutateAddContributorsProject({ email: u.email, role: 'CONTRIBUTOR' })),
+      ...toAdd.map((u) =>
+        mutateAddContributorsProject({ email: u.email, role: 'CONTRIBUTOR' })
+      ),
       ...toRemove.map((m) => mutateRemoveContributorsProject(m.user.id)),
     ])
 
@@ -171,7 +176,9 @@ export default function ModalEditProject({ project }: { project: Projects }) {
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedUsers(selectedUsers.filter((u) => u.id !== user.id))
+                  setSelectedUsers(
+                    selectedUsers.filter((u) => u.id !== user.id)
+                  )
                 }}
               >
                 ✕

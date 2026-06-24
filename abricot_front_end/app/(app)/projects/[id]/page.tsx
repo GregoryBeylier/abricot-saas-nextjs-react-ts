@@ -191,9 +191,10 @@ export default function ProjectPage({
 
       {/* Cards en dehors de la box blanche */}
       <div className="flex flex-col gap-4">
-        {tasksFiltrees.map((task) => (
-          <TaskRow key={task.id} task={task} />
-        ))}
+        {project &&
+          tasksFiltrees.map((task) => (
+            <TaskRow key={task.id} task={task} project={project} />
+          ))}
       </div>
     </div>
   )

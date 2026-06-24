@@ -1,18 +1,23 @@
 'use client'
-import type { ProjectTask } from '@/lib/api'
+import type { Projects, ProjectTask } from '@/lib/api'
 import StatusBadge from '@/components/ui/StatusBadge'
 import { Calendar, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { getInitiales } from '@/lib/utils'
-import { useState } from 'react'
+import { JSX, useState } from 'react'
+import { useModal } from '@/components/providers/ModalProvider'
+import ModalEditTask from '../modal/ModalEditTask'
 
 interface TaskRowProps {
   task: ProjectTask
+  project: Projects
 }
 
-export default function TaskRow({ task }: TaskRowProps) {
+export default function TaskRow({ task, project }: TaskRowProps) {
   const [open, setOpen] = useState(false)
+
+  const { setContentModal, setOpenModal } = useModal()
 
   return (
     <div className="bg-white rounded-xl border p-6 flex flex-col md:flex-row justify-between gap-4 min-w-[130px] w-full">
@@ -51,7 +56,14 @@ export default function TaskRow({ task }: TaskRowProps) {
         </div>
       </div>
       <button className="w-8 h-8 rounded-lg border flex items-center justify-center flex-shrink-0 self-end md:self-auto">
-        <MoreHorizontal size={16} />
+        <MoreHorizontal
+          size={16}
+          onClick={() => {
+            if (!project) return
+            setContentModal(<ModalEditTask task={task} project={project} />)
+            setOpenModal(true)
+          }}
+        />
       </button>
     </div>
   )
