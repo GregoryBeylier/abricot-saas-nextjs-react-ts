@@ -37,7 +37,7 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
   })
 
   return (
-    <div className="bg-white rounded-xl border p-6 flex flex-col md:flex-row justify-between gap-4 min-w-[130px] w-full overflow-visible">
+    <div className="relative bg-white rounded-xl border p-6 flex flex-col md:flex-row justify-between gap-4 min-w-[130px] w-full overflow-visible">
       <div className="flex flex-col flex-1">
         <div className="mb-1 flex flex-col gap-3 sm:flex-row sm:items-center items-start">
           <h2 className="font-medium">{task.title}</h2>
@@ -74,7 +74,7 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
           {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </div>
       </div>
-      <div className="relative">
+      <div className="absolute top-4 right-4 md:relative md:top-auto md:right-auto">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="w-8 h-8 rounded-lg border flex items-center justify-center flex-shrink-0"

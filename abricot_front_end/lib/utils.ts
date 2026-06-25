@@ -16,6 +16,6 @@ export function getInitiales(name: string) {
 
 // Étiquettes lisibles pour les rôles de projet
 export const roleLabels: Record<string, string> = {
-  ADMIN: 'Admin',
+  ADMIN: 'Administrateur',
   CONTRIBUTOR: 'Contributeur',
 }

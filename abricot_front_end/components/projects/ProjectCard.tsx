@@ -51,7 +51,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           </div>
           <div className="flex items-center flex-wrap gap-y-2 gap-x-2">
             <div
-              title={`${project.owner.name} — Propriétaire`}
+              title={`${project.owner.name || project.owner.email} — Propriétaire`}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium uppercase ring-2 ring-white ${
                 project.owner.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
               }`}
@@ -67,7 +67,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 .map((member) => (
                   <div
                     key={member.id}
-                    title={`${member.user.name} — ${roleLabels[member.role] ?? member.role}`}
+                    title={`${member.user.name || member.user.email} — ${roleLabels[member.role] ?? member.role}`}
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium uppercase ring-2 ring-white -ml-2 first:ml-0 ${
                       member.user.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
                     }`}

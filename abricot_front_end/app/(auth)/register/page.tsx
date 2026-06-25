@@ -33,6 +33,7 @@ export default function Register() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<Input>({
     resolver: zodResolver(schema),
@@ -42,6 +43,17 @@ export default function Register() {
 
   // UseState pour masquer le MDP
   const [showPassword, setShowPassword] = useState(false)
+  const [passwordFocused, setPasswordFocused] = useState(false)
+
+  const password = watch('password') ?? ''
+
+  const passwordRules = [
+    { label: '8 caractères minimum', valid: password.length >= 8 },
+    { label: 'Une lettre majuscule', valid: /[A-Z]/.test(password) },
+    { label: 'Une lettre minuscule', valid: /[a-z]/.test(password) },
+    { label: 'Un chiffre', valid: /[0-9]/.test(password) },
+    { label: 'Un caractère spécial (@$!%*?&)', valid: /[@$!%*?&]/.test(password) },
+  ]
 
   // useRouter permet de naviguer entre les pages
   const router = useRouter()
@@ -57,7 +69,11 @@ export default function Register() {
     onSuccess: (data) => {
       // si la réponse de l'API est un échec, affiche un message d'erreur
       if (data.success === false) {
-        setErreur(data.data.errors[0].message)
+        if (data.error === 'EMAIL_ALREADY_EXISTS') {
+          setErreur('Cette adresse email est déjà utilisée')
+        } else {
+          setErreur(data.message ?? 'Une erreur est survenue')
+        }
       } else {
         Cookies.set('token', data.data.token)
         router.push('/dashboard')
@@ -101,6 +117,8 @@ export default function Register() {
               {...register('password')}
               type={showPassword ? 'text' : 'password'}
               className={`bg-white h-12 ${errors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
             />
             <button
               type="button"
@@ -110,9 +128,17 @@ export default function Register() {
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
-          {errors.password && (
-            <p className="text-red-500 text-sm">{errors.password?.message}</p>
-          )}
+          {(passwordFocused || password.length > 0) && <ul className="flex flex-col gap-1 mt-1">
+            {passwordRules.map((rule) => (
+              <li
+                key={rule.label}
+                className={`text-xs flex items-center gap-2 ${rule.valid ? 'text-green-500' : 'text-gray-400'}`}
+              >
+                <span>{rule.valid ? '✓' : '✗'}</span>
+                {rule.label}
+              </li>
+            ))}
+          </ul>}
         </div>
 
         <Button

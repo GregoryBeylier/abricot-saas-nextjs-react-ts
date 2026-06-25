@@ -25,6 +25,7 @@ import type { Status } from '@/components/ui/StatusBadge'
 import ModalEditProject from '@/components/modal/ModalEditProjects'
 import { useModal } from '@/components/providers/ModalProvider'
 import ModalCreateTask from '@/components/modal/ModalCreateTask'
+import ModalIAPrompt from '@/components/modal/ModalIAPrompt'
 
 export default function ProjectPage({
   params,
@@ -160,7 +161,14 @@ export default function ProjectPage({
           >
             Créer une tâche
           </Button>
-          <Button className="h-[50px] px-[30px] rounded-[10px] bg-[#D3590B] text-white flex items-center gap-2 w-full sm:w-auto justify-center">
+          <Button
+            className="h-[50px] px-[30px] rounded-[10px] bg-[#D3590B] text-white flex items-center gap-2 w-full sm:w-auto justify-center"
+            onClick={() => {
+              if (!project) return
+              setContentModal(<ModalIAPrompt project={project} />)
+              setOpenModal(true)
+            }}
+          >
             <Sparkles size={18} />
             IA
           </Button>
@@ -177,7 +185,7 @@ export default function ProjectPage({
         </p>
         <div className="flex justify-end items-center gap-2 flex-wrap flex-1">
           <div
-            title={`${project?.owner?.name} — Propriétaire`}
+            title={`${project?.owner?.name || project?.owner?.email} — Propriétaire`}
             className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium uppercase ${
               project?.owner?.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
             }`}
@@ -192,7 +200,7 @@ export default function ProjectPage({
             .map((member) => (
               <div key={member.id} className="flex items-center gap-2">
                 <div
-                  title={`${member.user.name} — ${roleLabels[member.role] ?? member.role}`}
+                  title={`${member.user.name || member.user.email} — ${roleLabels[member.role] ?? member.role}`}
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium uppercase ${
                     member.user.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
                   }`}

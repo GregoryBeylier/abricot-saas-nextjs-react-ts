@@ -118,9 +118,9 @@ export const validateUpdateProfileData = (data: {
     }
   }
 
-  // Validation du nom si fourni
+  // Validation du nom si fourni (chaîne vide autorisée = suppression du nom)
   if (data.name !== undefined) {
-    if (data.name.trim().length < 2) {
+    if (data.name.trim().length > 0 && data.name.trim().length < 2) {
       errors.push({
         field: "name",
         message: "Le nom doit contenir au moins 2 caractères",

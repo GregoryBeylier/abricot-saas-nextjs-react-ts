@@ -75,7 +75,7 @@ export default function Account() {
 
   const onSubmit = (data: Input) => {
     mutateProfile({
-      name: `${data.firstName} ${data.lastName}`,
+      name: [data.firstName, data.lastName].filter(Boolean).join(' '),
       email: data.email,
     })
     if (data.currentPassword && data.newPassword) {
