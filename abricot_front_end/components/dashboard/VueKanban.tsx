@@ -80,16 +80,10 @@ function DraggableCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={`border rounded-lg mb-4 overflow-hidden ${isDragging ? 'opacity-30' : ''}`}
+      {...listeners}
+      {...attributes}
+      className={`border rounded-lg mb-4 overflow-hidden cursor-grab active:cursor-grabbing touch-none ${isDragging ? 'opacity-30' : ''}`}
     >
-      {/* Barre de drag en haut de la carte */}
-      <div
-        {...listeners}
-        {...attributes}
-        className="flex justify-center items-center py-1 border-b bg-gray-50 cursor-grab active:cursor-grabbing touch-none text-gray-300 hover:text-gray-400"
-      >
-        <GripVertical size={16} />
-      </div>
       <div className="p-4">
         <TaskCard
           task={task}

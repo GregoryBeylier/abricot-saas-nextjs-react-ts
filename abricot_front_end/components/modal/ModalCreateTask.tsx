@@ -33,6 +33,7 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
   const [erreur, setErreur] = useState('')
   const [selectedUsers, setSelectedUsers] = useState<ProjectMember[]>([])
   const [query, setQuery] = useState('')
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const { setOpenModal } = useModal()
   const queryClient = useQueryClient()
@@ -60,12 +61,23 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
 
   useEffect(() => {
     if (!data?.data?.user?.id) return
-    const currentMember = project.members.find(
-      (m) => m.user.id === data.data.user.id
-    )
+    const userId = data.data.user.id
+
+    // Cherche dans les membres
+    const currentMember = project.members.find((m) => m.user.id === userId)
+
     if (currentMember) {
       setSelectedUsers([currentMember])
       setValue('assigneeIds', [currentMember.user.id])
+    } else if (project.owner?.id === userId) {
+      // L'owner n'est pas dans members, on le construit manuellement
+      const ownerAsMember: ProjectMember = {
+        id: 'owner',
+        role: 'OWNER',
+        user: project.owner,
+      }
+      setSelectedUsers([ownerAsMember])
+      setValue('assigneeIds', [userId])
     }
   }, [data])
 
@@ -122,76 +134,70 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setDropdownOpen(true)}
+              onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
               placeholder="Choisir un ou plusieurs collaborateurs"
               className="border rounded-lg bg-white h-12 pr-10"
             />
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-            {query.length >= 2 && (
-              <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg top-full">
+            {dropdownOpen && (
+              <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg top-full max-h-48 overflow-y-auto">
                 {project.members
                   .filter(
                     (member) =>
-                      member.user.name
-                        ?.toLowerCase()
-                        .includes(query.toLowerCase()) ||
-                      member.user.email
-                        .toLowerCase()
-                        .includes(query.toLowerCase())
+                      !selectedUsers.find((u) => u.user.id === member.user.id) &&
+                      (query.length === 0 ||
+                        member.user.name?.toLowerCase().includes(query.toLowerCase()) ||
+                        member.user.email.toLowerCase().includes(query.toLowerCase()))
                   )
                   .map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center py-2 px-3 cursor-pointer hover:bg-gray-50"
-                      onClick={() => {
-                        const alreadySelected = selectedUsers.find(
-                          (u) => u.id === member.user.id
-                        )
-                        if (alreadySelected) {
-                          setErreur('Cet utilisateur est déjà ajouté')
-                          return
-                        }
+                      className="flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-gray-50"
+                      onMouseDown={() => {
                         const newSelected = [...selectedUsers, member]
                         setSelectedUsers(newSelected)
-                        setValue(
-                          'assigneeIds',
-                          newSelected.map((u) => u.user.id)
-                        )
+                        setValue('assigneeIds', newSelected.map((u) => u.user.id))
                         setQuery('')
                         setErreur('')
+                        setDropdownOpen(false)
                       }}
                     >
-                      {member.user.name} - {member.user.email}
+                      <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium uppercase flex-shrink-0">
+                        {getInitiales(member.user.name ?? member.user.email)}
+                      </div>
+                      <span className="text-sm">{member.user.name ?? member.user.email}</span>
                     </div>
                   ))}
               </div>
             )}
           </div>
           {erreur && <p className="text-red-500 text-sm">{erreur}</p>}
-          {selectedUsers.map((user) => (
-            <div key={user.id} className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#FFE8D9] flex items-center justify-center text-xs font-medium uppercase ring-2 ring-white shrink-0">
-                {getInitiales(user.user.name ?? user.user.email)}
-              </div>
-              <span className="text-sm">
-                <span className="hidden sm:inline">
-                  {user.user.name ?? user.user.email}
-                </span>
-                <span className="sm:hidden">
-                  {user.user.name ?? user.user.email}
-                </span>
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  setSelectedUsers(
-                    selectedUsers.filter((u) => u.user.id !== user.user.id)
-                  )
-                }
-              >
-                ✕
-              </button>
+          {selectedUsers.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedUsers.map((user) => (
+                <div key={user.id} className="flex items-center gap-2 bg-gray-100 rounded-full pl-1 pr-3 py-1">
+                  <div className="w-6 h-6 rounded-full bg-[#D3590B]/10 flex items-center justify-center text-xs font-medium uppercase shrink-0">
+                    {getInitiales(user.user.name ?? user.user.email)}
+                  </div>
+                  <span className="text-sm text-gray-700 max-w-[120px] truncate">
+                    {user.user.name ?? user.user.email}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newSelected = selectedUsers.filter((u) => u.user.id !== user.user.id)
+                      setSelectedUsers(newSelected)
+                      setValue('assigneeIds', newSelected.map((u) => u.user.id))
+                    }}
+                    className="text-gray-400 hover:text-gray-600 text-xs ml-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         <Button

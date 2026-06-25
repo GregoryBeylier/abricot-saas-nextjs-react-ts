@@ -91,7 +91,13 @@ export interface Task {
   description: string
   status: Status
   dueDate: string | null
-  comments: { id: string }[]
+  comments: {
+    author: { name: string | null; email: string }
+    id: string
+    content: string
+    createdAt: string
+    updatedAt: string
+  }[]
   projectId: string
   assignees: {
     id: string
@@ -191,7 +197,13 @@ export interface ProjectTask {
   dueDate: string | null
   projectId: string
   assignees: Assignee[]
-  comments: { id: string }[]
+  comments: {
+    author: { name: string | null; email: string }
+    id: string
+    content: string
+    createdAt: string
+    updatedAt: string
+  }[]
 }
 
 // Type de réponse pour les tâches d'un projet
@@ -414,6 +426,31 @@ export function fetchUpdateTask(
       body: data,
     }
   )
+}
+
+// ─── Commentaires ────────────────────────────────────────────────────────────
+
+// Supprime un commentaire — DELETE /projects/:projectId/tasks/:taskId/comments/:commentId
+export function fetchDeleteComment(
+  projectId: string,
+  taskId: string,
+  commentId: string
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/projects/${projectId}/tasks/${taskId}/comments/${commentId}`, {
+    method: 'DELETE',
+  })
+}
+
+// Crée un commentaire sur une tâche — POST /projects/:projectId/tasks/:taskId/comments
+export function fetchCreateComment(
+  projectId: string,
+  taskId: string,
+  data: { content: string }
+): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/projects/${projectId}/tasks/${taskId}/comments`, {
+    method: 'POST',
+    body: data,
+  })
 }
 
 //pour supprimer dans une tâche existant

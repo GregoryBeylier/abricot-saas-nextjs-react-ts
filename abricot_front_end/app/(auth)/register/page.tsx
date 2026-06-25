@@ -154,7 +154,7 @@ export default function Register() {
         )}
       </form>
 
-      <span className="whitespace-nowrap">
+      <span className="text-sm text-center px-4">
         Déjà inscrit ?{' '}
         <a href="/login" className="text-[var(--color-abricot)] underline">
           Se connecter

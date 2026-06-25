@@ -1,5 +1,5 @@
 'use client'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import logo from '@/public/logo.svg'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,6 +17,7 @@ export default function Header() {
   const pathname = usePathname()
 
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   // Récupère le profil utilisateur depuis l'API (nom/email pour l'avatar)
   const { data, isLoading, isError } = useQuery({
@@ -119,6 +120,7 @@ export default function Header() {
               onClick={() => {
                 // Suppression du token et redirection vers la page de login
                 Cookie.remove('token')
+                queryClient.clear()
                 router.push('/login')
               }}
               className="px-4 py-2 text-sm text-red-500 hover:bg-gray-100 rounded-lg text-left"

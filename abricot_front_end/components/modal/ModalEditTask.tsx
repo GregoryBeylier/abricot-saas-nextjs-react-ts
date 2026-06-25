@@ -34,12 +34,21 @@ interface ModalEditTaskProps {
 export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
   // useState pour gerer les message d'erreur et de reussite
   const [erreur, setErreur] = useState('')
+  // On construit la liste complète des membres potentiels : members + owner si absent
+  const allMembers: ProjectMember[] = [
+    ...project.members,
+    ...(project.members.some((m) => m.user.id === project.owner?.id)
+      ? []
+      : [{ id: 'owner', role: 'OWNER', user: project.owner }]),
+  ]
+
   const [selectedUsers, setSelectedUsers] = useState<ProjectMember[]>(
-    project.members.filter((m) =>
+    allMembers.filter((m) =>
       task.assignees.some((a) => a.user.id === m.user.id)
     )
   )
   const [query, setQuery] = useState('')
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const { setOpenModal } = useModal()
   const queryClient = useQueryClient()
@@ -116,96 +125,97 @@ export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label>Statut</Label>
-          <div className="relative flex items-center border rounded-lg">
-            <select
-              className="text-gray-500 px-4 py-3 text-sm outline-none bg-white appearance-none cursor-pointer pr-8 rounded-lg w-full"
-              {...register('status')}
-            >
-              <option value="">Statut</option>
-              <option value="TODO">À faire</option>
-              <option value="IN_PROGRESS">En cours</option>
-              <option value="DONE">Terminée</option>
-            </select>
-            <ChevronDown
-              size={16}
-              className="absolute right-2 pointer-events-none text-gray-500"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3">
           <Label>Assigné à :</Label>
           <div className="relative">
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setDropdownOpen(true)}
+              onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
               placeholder="Choisir un ou plusieurs collaborateurs"
               className="border rounded-lg bg-white h-12 pr-10"
             />
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-            {query.length >= 2 && (
-              <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg top-full">
-                {project.members
+            {dropdownOpen && (
+              <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg top-full max-h-48 overflow-y-auto">
+                {allMembers
                   .filter(
                     (member) =>
-                      member.user.name
-                        ?.toLowerCase()
-                        .includes(query.toLowerCase()) ||
-                      member.user.email
-                        .toLowerCase()
-                        .includes(query.toLowerCase())
+                      !selectedUsers.find((u) => u.user.id === member.user.id) &&
+                      (query.length === 0 ||
+                        member.user.name?.toLowerCase().includes(query.toLowerCase()) ||
+                        member.user.email.toLowerCase().includes(query.toLowerCase()))
                   )
                   .map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center py-2 px-3 cursor-pointer hover:bg-gray-50"
-                      onClick={() => {
-                        const alreadySelected = selectedUsers.find(
-                          (u) => u.user.id === member.user.id
-                        )
-                        if (alreadySelected) {
-                          setErreur('Cet utilisateur est déjà ajouté')
-                          return
-                        }
+                      className="flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-gray-50"
+                      onMouseDown={() => {
                         const newSelected = [...selectedUsers, member]
                         setSelectedUsers(newSelected)
-                        setValue(
-                          'assigneeIds',
-                          newSelected.map((u) => u.user.id)
-                        )
+                        setValue('assigneeIds', newSelected.map((u) => u.user.id))
                         setQuery('')
                         setErreur('')
+                        setDropdownOpen(false)
                       }}
                     >
-                      {member.user.name} - {member.user.email}
+                      <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium uppercase flex-shrink-0">
+                        {getInitiales(member.user.name ?? member.user.email)}
+                      </div>
+                      <span className="text-sm">{member.user.name ?? member.user.email}</span>
                     </div>
                   ))}
               </div>
             )}
           </div>
           {erreur && <p className="text-red-500 text-sm">{erreur}</p>}
-          {selectedUsers.map((user) => (
-            <div key={user.id} className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#FFE8D9] flex items-center justify-center text-xs font-medium uppercase ring-2 ring-white shrink-0">
-                {getInitiales(user.user.name ?? '')}
-              </div>
-              <span className="text-sm">
-                <span className="hidden sm:inline">{user.user.email}</span>
-                <span className="sm:hidden">{user.user.name}</span>
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  setSelectedUsers(
-                    selectedUsers.filter((u) => u.user.id !== user.user.id)
-                  )
-                }
-              >
-                ✕
-              </button>
+          {selectedUsers.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedUsers.map((user) => (
+                <div key={user.id} className="flex items-center gap-2 bg-gray-100 rounded-full pl-1 pr-3 py-1">
+                  <div className="w-6 h-6 rounded-full bg-[#D3590B]/10 flex items-center justify-center text-xs font-medium uppercase shrink-0">
+                    {getInitiales(user.user.name ?? user.user.email)}
+                  </div>
+                  <span className="text-sm text-gray-700 max-w-[120px] truncate">
+                    {user.user.name ?? user.user.email}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newSelected = selectedUsers.filter((u) => u.user.id !== user.user.id)
+                      setSelectedUsers(newSelected)
+                      setValue('assigneeIds', newSelected.map((u) => u.user.id))
+                    }}
+                    className="text-gray-400 hover:text-gray-600 text-xs ml-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <Label>Statut :</Label>
+          <div className="flex items-center gap-3">
+            {(
+              [
+                { value: 'TODO', label: 'À faire', active: 'bg-red-100 text-red-400', inactive: 'bg-gray-100 text-gray-400' },
+                { value: 'IN_PROGRESS', label: 'En cours', active: 'bg-orange-100 text-orange-400', inactive: 'bg-gray-100 text-gray-400' },
+                { value: 'DONE', label: 'Terminée', active: 'bg-green-100 text-green-400', inactive: 'bg-gray-100 text-gray-400' },
+              ] as const
+            ).map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => setValue('status', s.value)}
+                className={`rounded-full px-3 py-1 text-xs transition-colors ${watch('status') === s.value ? s.active : s.inactive}`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <Button
@@ -217,7 +227,7 @@ export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
           }`}
         >
-          Ajouter un projet
+          Modifier la tâche
         </Button>
       </form>
     </>

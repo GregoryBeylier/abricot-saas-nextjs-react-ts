@@ -24,18 +24,25 @@ export async function POST(req: NextRequest) {
           {
             role: 'user',
             parts: [{
-              text: `Tu es un assistant de gestion de projet. Génère une liste de tâches basée sur la demande suivante.
+              text: `Tu es un assistant de gestion de projet. Décompose la demande suivante en tâches concrètes et distinctes.
 
 Demande : "${prompt}"
 
+Règles strictes :
+- Chaque tâche doit être UNIQUE et couvrir un aspect différent de la demande
+- Aucune répétition : ne reformule pas la même tâche avec des mots différents
+- Sois spécifique : "Responsive navbar mobile" plutôt que "Faire le responsive"
+- Entre 4 et 8 tâches maximum
+- Si la demande est simple, génère moins de tâches plutôt que d'en inventer
+
 Retourne UNIQUEMENT un tableau JSON valide contenant des objets avec exactement deux champs :
-- "title" : titre court de la tâche (string)
-- "description" : explication en 1-2 phrases (string)
+- "title" : titre court et spécifique (string, max 60 caractères)
+- "description" : ce que la tâche implique concrètement en 1 phrase (string)
 
 La réponse doit commencer par [ et finir par ]. Aucun texte avant ou après. Aucun markdown.
 
-Exemple de format :
-[{"title":"Créer la page login","description":"Formulaire avec email et mot de passe avec validation."},{"title":"Configurer le JWT","description":"Mise en place du token JWT stocké en cookie sécurisé."}]`
+Exemple pour "faire le responsive mobile" :
+[{"title":"Responsive navbar mobile","description":"Adapter la barre de navigation pour les petits écrans avec menu hamburger."},{"title":"Responsive page dashboard","description":"Passer les cartes en colonne unique sur mobile."},{"title":"Responsive formulaires","description":"Adapter les inputs et boutons pour les écrans tactiles."}]`
             }],
           },
         ],

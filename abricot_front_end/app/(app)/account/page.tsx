@@ -29,7 +29,17 @@ const schema = z.object({
     .regex(/[@$!%*?&]/, 'Au moins un caractère spécial')
     .optional()
     .or(z.literal('')),
-})
+}).refine(
+  (data) => {
+    const hasFirst = !!data.firstName?.trim()
+    const hasLast = !!data.lastName?.trim()
+    return hasFirst === hasLast
+  },
+  {
+    message: 'Remplissez les deux champs ou laissez-les vides',
+    path: ['lastName'],
+  }
+)
 
 type Input = z.infer<typeof schema>
 
@@ -41,33 +51,60 @@ export default function Account() {
 
   const [erreur, setErreur] = useState('')
   const [succes, setSucces] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+
+  useEffect(() => {
+    if (!erreur) return
+    const timer = setTimeout(() => setErreur(''), 4000)
+    return () => clearTimeout(timer)
+  }, [erreur])
+
+  useEffect(() => {
+    if (!succes) return
+    const timer = setTimeout(() => setSucces(''), 4000)
+    return () => clearTimeout(timer)
+  }, [succes])
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
   const queryClient = useQueryClient()
+
+  const user = data?.data?.user
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+    reset,
+    setValue,
+    getValues,
+  } = useForm<Input>({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+  })
 
   // useMutation gère l'envoi de la modification des informations de l'utilisateur
   const { mutate: mutateProfile } = useMutation({
     mutationFn: fetchUpdateProfile,
-    // onSuccess est appelé lorsque la modification echoue
     onSuccess: (data) => {
       if (data.success === false) {
         setErreur(data.message)
       } else {
         setSucces('Profil mis à jour avec succès')
         queryClient.invalidateQueries({ queryKey: ['user'] })
+        reset(getValues(), { keepDefaultValues: false })
       }
     },
     onError: () => setErreur('Une erreur est survenue, veuillez réessayer'),
   })
 
-  // useMutation gère l'envoi de la modification des informations de l'utilisateur
+  // useMutation gère l'envoi de la modification du mot de passe
   const { mutate: mutatePassword } = useMutation({
     mutationFn: fetchUpdatePassword,
-    // onSuccess est appelé lorsque la modification echoue
     onSuccess: (data) => {
       if (data.success === false) {
         setErreur(data.message)
       } else {
-        setSucces('Profil mis à jour avec succès')
+        setSucces('Mot de passe mis à jour avec succès')
+        reset({ ...getValues(), currentPassword: '', newPassword: '' })
       }
     },
     onError: () => setErreur('Une erreur est survenue, veuillez réessayer'),
@@ -85,24 +122,14 @@ export default function Account() {
       })
     }
   }
-  const user = data?.data?.user
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<Input>({
-    resolver: zodResolver(schema),
-    mode: 'onChange',
-  })
 
   useEffect(() => {
     if (user) {
       const [firstName, ...rest] = user.name?.split(' ') ?? []
+      const lastName = rest.join(' ')
       reset({
-        firstName: firstName ?? '',
-        lastName: rest.join(' ') ?? '',
+        firstName,
+        lastName,
         email: user.email ?? '',
       })
     }
@@ -116,13 +143,15 @@ export default function Account() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <Label>Nom</Label>
-            <Input {...register('firstName')} className="bg-white h-12" />
+            <Label>Prénom</Label>
+            <Input {...register('firstName')} className={`bg-white h-12 ${errors.firstName ? 'border-red-500' : ''}`} />
+            {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Prénom</Label>
-            <Input {...register('lastName')} className="bg-white h-12" />
+            <Label>Nom</Label>
+            <Input {...register('lastName')} className={`bg-white h-12 ${errors.lastName ? 'border-red-500' : ''}`} />
+            {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
@@ -135,15 +164,15 @@ export default function Account() {
             <div className="relative">
               <Input
                 {...register('currentPassword')}
-                type={showPassword ? 'text' : 'password'}
+                type={showCurrentPassword ? 'text' : 'password'}
                 className="bg-white h-12 pr-10"
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
@@ -153,15 +182,15 @@ export default function Account() {
             <div className="relative">
               <Input
                 {...register('newPassword')}
-                type={showPassword ? 'text' : 'password'}
+                type={showNewPassword ? 'text' : 'password'}
                 className={`bg-white h-12 pr-10 ${errors.newPassword ? 'border-red-500' : ''}`}
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShowNewPassword(!showNewPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {errors.newPassword && (
@@ -173,7 +202,10 @@ export default function Account() {
 
           <Button
             type="submit"
-            className="w-full sm:w-fit h-12 px-8 rounded-[10px] bg-[#1F1F1F] text-white"
+            disabled={!isDirty}
+            className={`w-full sm:w-fit h-12 px-8 rounded-[10px] transition-colors ${
+              isDirty ? 'bg-[#1F1F1F] text-white' : 'bg-gray-200 text-gray-500'
+            }`}
           >
             Modifier les informations
           </Button>

@@ -60,6 +60,14 @@ export default function ProjectPage({
   const [search, setSearch] = useState('')
   const [statusFiltre, setStatusFiltre] = useState<Status | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false)
+
+  const statusOptions: { value: Status | null; label: string }[] = [
+    { value: null, label: 'Tous' },
+    { value: 'TODO', label: 'À faire' },
+    { value: 'IN_PROGRESS', label: 'En cours' },
+    { value: 'DONE', label: 'Terminée' },
+  ]
 
   const queryClient = useQueryClient()
   const { mutate: deleteProject } = useMutation({
@@ -233,23 +241,33 @@ export default function ProjectPage({
               <CalendarDays size={16} />
               Calendrier
             </button>
-            <div className="relative flex items-center border rounded-lg">
-              <select
-                className="text-gray-500 px-4 py-3 text-sm outline-none bg-white appearance-none cursor-pointer pr-8 rounded-lg"
-                value={statusFiltre ?? ''}
-                onChange={(e) =>
-                  setStatusFiltre((e.target.value as Status) || null)
-                }
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+                onBlur={() => setTimeout(() => setStatusDropdownOpen(false), 150)}
+                className="flex items-center gap-2 border rounded-lg px-4 py-3 text-sm text-gray-500 bg-white whitespace-nowrap"
               >
-                <option value="">Statut</option>
-                <option value="TODO">À faire</option>
-                <option value="IN_PROGRESS">En cours</option>
-                <option value="DONE">Terminée</option>
-              </select>
-              <ChevronDown
-                size={16}
-                className="absolute right-2 pointer-events-none text-gray-500"
-              />
+                {statusOptions.find((o) => o.value === statusFiltre)?.label ?? 'Statut'}
+                <ChevronDown size={16} className="text-gray-400" />
+              </button>
+              {statusDropdownOpen && (
+                <div className="absolute z-10 top-full mt-1 bg-white border rounded-lg shadow-lg w-36">
+                  {statusOptions.map((option) => (
+                    <button
+                      key={option.label}
+                      type="button"
+                      onMouseDown={() => {
+                        setStatusFiltre(option.value)
+                        setStatusDropdownOpen(false)
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${statusFiltre === option.value ? 'text-[#D3590B] font-medium' : 'text-gray-600'}`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2 border rounded-lg px-4 py-3 w-full max-w-[480px]">
               <input

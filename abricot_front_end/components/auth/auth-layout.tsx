@@ -13,7 +13,7 @@ export default function AuthLayout({
     //    div global
     <div className="flex h-screen ">
       {/* section formulaire de connexion */}
-      <div className="w-full md:w-2/5 md:min-w-[300px] bg-gray-50 flex flex-col items-center justify-between p-10">
+      <div className="w-full min-w-0 md:w-2/5 md:min-w-[300px] bg-gray-50 flex flex-col items-center justify-between px-4 py-8 md:p-10">
         <Image
           src={logo}
           alt="logo"

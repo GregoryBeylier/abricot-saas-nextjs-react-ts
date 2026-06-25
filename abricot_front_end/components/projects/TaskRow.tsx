@@ -1,5 +1,5 @@
 'use client'
-import { fetchRemoveTask, type Projects, type ProjectTask } from '@/lib/api'
+import { fetchRemoveTask, fetchCreateComment, fetchDeleteComment, fetchProfile, type Projects, type ProjectTask } from '@/lib/api'
 import StatusBadge from '@/components/ui/StatusBadge'
 import { Calendar, ChevronDown, ChevronUp, MoreHorizontal } from 'lucide-react'
 import { format } from 'date-fns'
@@ -8,7 +8,7 @@ import { getInitiales } from '@/lib/utils'
 import { JSX, useState } from 'react'
 import { useModal } from '@/components/providers/ModalProvider'
 import ModalEditTask from '../modal/ModalEditTask'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 interface TaskRowProps {
   task: ProjectTask
@@ -17,14 +17,36 @@ interface TaskRowProps {
 }
 
 export default function TaskRow({ task, project, userRole }: TaskRowProps) {
-  // Ouvrir/fermer commentaire
   const [open, setOpen] = useState(false)
-
   const [menuOpen, setMenuOpen] = useState(false)
+  const [commentContent, setCommentContent] = useState('')
+  const [openCommentMenu, setOpenCommentMenu] = useState<string | null>(null)
 
   const { setContentModal, setOpenModal } = useModal()
 
   const queryClient = useQueryClient()
+
+  const { data: profileData } = useQuery({
+    queryKey: ['profile'],
+    queryFn: fetchProfile,
+  })
+  const currentUser = profileData?.data?.user
+
+  const { mutate: deleteComment } = useMutation({
+    mutationFn: (commentId: string) => fetchDeleteComment(project.id, task.id, commentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project-tasks', project.id] })
+      setOpenCommentMenu(null)
+    },
+  })
+
+  const { mutate: sendComment, isPending: isSending } = useMutation({
+    mutationFn: () => fetchCreateComment(project.id, task.id, { content: commentContent }),
+    onSuccess: () => {
+      setCommentContent('')
+      queryClient.invalidateQueries({ queryKey: ['project-tasks', project.id] })
+    },
+  })
 
   const { mutate: mutateRemoveProject } = useMutation({
     mutationFn: () => fetchRemoveTask(project.id, task.id),
@@ -55,7 +77,7 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
           Assigné à :
           {task.assignees.map((assignee) => (
             <div key={assignee.id} className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium uppercase">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium uppercase ${assignee.user.email === currentUser?.email ? 'bg-[#D3590B]/10 text-gray-900' : 'bg-gray-200 text-gray-600'}`}>
                 {assignee.user.name
                   ? getInitiales(assignee.user.name)
                   : getInitiales(assignee.user.email)}
@@ -73,6 +95,73 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
           Commentaires ({task.comments.length})
           {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </div>
+        {open && (
+          <div className="mt-3 flex flex-col gap-3">
+            {task.comments.map((comment) => (
+              <div key={comment.id} className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold uppercase flex-shrink-0 ${comment.author.email === currentUser?.email ? 'bg-[#D3590B]/10 text-gray-900' : 'bg-gray-200 text-gray-600'}`}>
+                  {getInitiales(comment.author.name ?? comment.author.email)}
+                </div>
+                <div className="flex-1 bg-gray-50 rounded-xl px-3 py-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-medium text-zinc-800">
+                      {comment.author.name ?? comment.author.email}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-gray-400">
+                        {format(new Date(comment.createdAt), 'd MMM, HH:mm', { locale: fr })}
+                      </p>
+                      {(comment.author.email === currentUser?.email || userRole === 'ADMIN') && (
+                        <div className="relative">
+                          <button
+                            onClick={() => setOpenCommentMenu(openCommentMenu === comment.id ? null : comment.id)}
+                            className="text-gray-400 hover:text-gray-600 text-lg leading-none px-1"
+                          >
+                            ···
+                          </button>
+                          {openCommentMenu === comment.id && (
+                            <div className="absolute right-0 top-6 bg-white rounded-xl shadow-lg border p-1 z-50 min-w-[140px]">
+                              <button
+                                onClick={() => deleteComment(comment.id)}
+                                className="w-full px-3 py-2 text-sm text-red-500 hover:bg-gray-100 rounded-lg text-left"
+                              >
+                                Supprimer
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">{comment.content}</p>
+                </div>
+              </div>
+            ))}
+
+            {/* Input ajout commentaire */}
+            <div className="flex items-start gap-3 mt-1">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D3590B] to-[#E8843F] flex items-center justify-center text-xs font-semibold uppercase text-white flex-shrink-0 mt-2">
+                {currentUser ? getInitiales(currentUser.name ?? currentUser.email) : '?'}
+              </div>
+              <div className="flex-1 flex flex-col gap-2">
+                <textarea
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
+                  placeholder="Ajouter un commentaire..."
+                  className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:border-gray-300 min-h-[60px]"
+                  rows={2}
+                />
+                <button
+                  onClick={() => sendComment()}
+                  disabled={!commentContent.trim() || isSending}
+                  className="self-end px-5 py-2 rounded-xl bg-gray-200 text-gray-500 text-sm font-medium disabled:opacity-50 enabled:bg-[#1F1F1F] enabled:text-white transition-colors"
+                >
+                  {isSending ? 'Envoi...' : 'Envoyer'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <div className="absolute top-4 right-4 md:relative md:top-auto md:right-auto">
         <button

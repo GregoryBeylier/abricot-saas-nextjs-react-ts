@@ -127,7 +127,7 @@ export default function SignIn() {
         </a>
       </form>
 
-      <span className="whitespace-nowrap">
+      <span className="text-sm text-center px-4">
         Pas encore de compte ?{' '}
         <a href="/register" className="text-[var(--color-abricot)] underline">
           Créer un compte

@@ -731,43 +731,23 @@ export const searchUsers = async (
       return
     }
 
-    if (!query || typeof query !== 'string') {
-      sendError(res, 'Paramètre de recherche requis', 'MISSING_QUERY', 400)
-      return
-    }
-
-    const searchQuery = query.trim()
-    if (searchQuery.length < 2) {
-      sendError(
-        res,
-        'La recherche doit contenir au moins 2 caractères',
-        'INVALID_QUERY',
-        400
-      )
-      return
-    }
+    const searchQuery = typeof query === 'string' ? query.trim() : ''
 
     const users = await prisma.user.findMany({
-      where: {
-        OR: [
-          {
-            email: {
-              contains: searchQuery,
-            },
-          },
-          {
-            name: {
-              contains: searchQuery,
-            },
-          },
-        ],
-      },
+      where: searchQuery.length >= 2
+        ? {
+            OR: [
+              { email: { contains: searchQuery } },
+              { name: { contains: searchQuery } },
+            ],
+          }
+        : undefined,
       select: {
         id: true,
         email: true,
         name: true,
       },
-      take: 10, // Limiter à 10 résultats
+      take: 20,
       orderBy: [{ name: 'asc' }, { email: 'asc' }],
     })
 

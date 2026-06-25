@@ -59,6 +59,7 @@ export default function ModalCreateProject() {
     mode: 'onChange',
   })
   const [query, setQuery] = useState('')
+  const [dropdownOpen, setDropdownOpen] = useState(false)
 
   const { data: profileData } = useQuery({
     queryKey: ['user'],
@@ -69,11 +70,13 @@ export default function ModalCreateProject() {
   const { data } = useQuery<SearchUserProjectResponse>({
     queryKey: ['users-search', query],
     queryFn: () => fetchSearchUsersProject(query),
-    enabled: query.length >= 2,
+    enabled: dropdownOpen,
   })
 
-  const searchResults = (data?.data.users ?? []).filter(
-    (u) => u.id !== currentUserId
+  const searchResults = (data?.data?.users ?? []).filter(
+    (u) =>
+      u.id !== currentUserId &&
+      !selectedUsers.find((s) => s.id === u.id)
   )
 
   const onSubmit = (data: Input) => {
@@ -109,62 +112,64 @@ export default function ModalCreateProject() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setDropdownOpen(true)}
+              onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
               placeholder="Choisir un ou plusieurs collaborateurs"
               className="border rounded-lg bg-white h-12 pr-10"
             />
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-            {query.length >= 2 && (
-              <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg top-full">
-                {searchResults.map((user) => (
+            {dropdownOpen && (
+              <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg top-full max-h-48 overflow-y-auto">
+                {searchResults.length === 0 ? (
+                  <p className="text-sm text-gray-400 px-3 py-2">Aucun résultat</p>
+                ) : searchResults.map((user) => (
                   <div
                     key={user.id}
-                    className="flex items-center py-2 px-3 cursor-pointer hover:bg-gray-50"
-                    onClick={() => {
-                      const alreadySelected = selectedUsers.find(
-                        (u) => u.id === user.id
-                      )
-                      if (alreadySelected) {
-                        setErreur('Cet utilisateur est déjà ajouté')
-                        return
-                      }
+                    className="flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-gray-50"
+                    onMouseDown={() => {
                       const newSelected = [...selectedUsers, user]
                       setSelectedUsers(newSelected)
-                      setValue(
-                        'contributors',
-                        newSelected.map((u) => u.email)
-                      )
+                      setValue('contributors', newSelected.map((u) => u.email))
                       setQuery('')
                       setErreur('')
+                      setDropdownOpen(false)
                     }}
                   >
-                    {user.name} - {user.email}
+                    <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium uppercase flex-shrink-0">
+                      {getInitiales(user.name ?? user.email)}
+                    </div>
+                    <span className="text-sm">{user.name ?? user.email}</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
           {erreur && <p className="text-red-500 text-sm">{erreur}</p>}
-          {selectedUsers.map((user) => (
-            <div key={user.id} className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#FFE8D9] flex items-center justify-center text-xs font-medium uppercase ring-2 ring-white shrink-0">
-                {getInitiales(user.name ?? user.email)}
-              </div>
-              <span className="text-sm">
-                <span className="hidden sm:inline">{user.email}</span>
-                <span className="sm:hidden">{user.name ?? user.email}</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  const newSelected = selectedUsers.filter((u) => u.id !== user.id)
-                  setSelectedUsers(newSelected)
-                  setValue('contributors', newSelected.map((u) => u.email))
-                }}
-              >
-                ✕
-              </button>
+          {selectedUsers.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedUsers.map((user) => (
+                <div key={user.id} className="flex items-center gap-2 bg-gray-100 rounded-full pl-1 pr-3 py-1">
+                  <div className="w-6 h-6 rounded-full bg-[#D3590B]/10 flex items-center justify-center text-xs font-medium uppercase shrink-0">
+                    {getInitiales(user.name ?? user.email)}
+                  </div>
+                  <span className="text-sm text-gray-700 max-w-[120px] truncate">
+                    {user.name ?? user.email}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newSelected = selectedUsers.filter((u) => u.id !== user.id)
+                      setSelectedUsers(newSelected)
+                      setValue('contributors', newSelected.map((u) => u.email))
+                    }}
+                    className="text-gray-400 hover:text-gray-600 text-xs ml-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         <Button
