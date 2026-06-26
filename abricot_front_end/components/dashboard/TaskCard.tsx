@@ -29,35 +29,39 @@ export default function TaskCard({
   return (
     <>
       {variant_style === 'flex-col' ? (
-        <div className="flex flex-col gap-5 px-2">
-          <div className="flex justify-between items-center">
-            <h2 className="font-medium truncate max-w-[60%]">{task.title}</h2>
+        <div className="flex flex-col gap-5 px-2 min-h-[220px]">
+          <div className="flex justify-between items-center gap-2">
+            <h2 className="font-medium truncate min-w-0">{task.title}</h2>
             <StatusBadge status={task.status} />
           </div>
-          <p className="text-gray-500 text-sm truncate max-w-[60%]">
+          <p className="text-gray-500 text-sm truncate max-w-[60%] min-h-5">
             {task.description}
           </p>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Folder size={16} className="text-gray-400" fill="currentColor" />
-            <span className="truncate max-w-[90px]">{projectName}</span>
-            <span>|</span>
-            <Calendar size={16} className="text-gray-400" />
-            <span>
+          <div className="flex flex-nowrap items-center gap-1.5 text-sm text-gray-500">
+            <Folder
+              size={16}
+              className="text-gray-400 flex-shrink-0"
+              fill="currentColor"
+            />
+            <span className="truncate min-w-0">{projectName}</span>
+            <span className="flex-shrink-0">|</span>
+            <Calendar size={16} className="text-gray-400 flex-shrink-0" />
+            <span className="whitespace-nowrap flex-shrink-0">
               {task.dueDate
                 ? format(new Date(task.dueDate), 'd MMM', { locale: fr })
                 : ''}
             </span>
-            <span>|</span>
+            <span className="flex-shrink-0">|</span>
             <MessageSquare
               size={16}
-              className="text-gray-400"
+              className="text-gray-400 flex-shrink-0"
               fill="currentColor"
             />
-            <span>{task.comments.length}</span>
+            <span className="flex-shrink-0">{task.comments.length}</span>
           </div>
           <Button
             onClick={handleVoir}
-            className="self-start h-[40px] rounded-[10px] px-[32px] bg-[#1F1F1F] text-white flex items-center"
+            className="self-start mt-auto w-full min-[321px]:w-auto justify-center min-[321px]:justify-start h-[40px] rounded-[10px] px-[32px] bg-[#1F1F1F] text-white flex items-center"
           >
             Voir
           </Button>
@@ -98,11 +102,11 @@ export default function TaskCard({
               <span>{task.comments.length}</span>
             </div>
           </div>
-          <div className="flex min-[321px]:flex-col items-center min-[321px]:items-end justify-between py-2 min-h-[80px] min-[321px]:min-h-[120px] flex-shrink-0">
+          <div className="flex flex-col items-start gap-3 min-[321px]:items-end min-[321px]:justify-between min-[321px]:gap-0 py-2 min-h-[80px] min-[321px]:min-h-[120px] flex-shrink-0">
             <StatusBadge status={task.status} />
             <Button
               onClick={handleVoir}
-              className="self-start h-[40px] rounded-[10px] px-[32px] bg-[#1F1F1F] text-white flex items-center"
+              className="self-start w-full min-[321px]:w-auto justify-center min-[321px]:justify-start h-[40px] rounded-[10px] px-[32px] bg-[#1F1F1F] text-white flex items-center"
             >
               Voir
             </Button>

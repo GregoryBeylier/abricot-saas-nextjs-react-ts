@@ -1,7 +1,12 @@
 'use client'
 import { useState } from 'react'
 import type { Task } from '@/lib/api'
-import { fetchCreateComment, fetchDeleteComment, fetchProjects } from '@/lib/api'
+import {
+  fetchCreateComment,
+  fetchDeleteComment,
+  fetchProjects,
+  fetchProjectTasks,
+} from '@/lib/api'
 import ModalEditTask from '@/components/modal/ModalEditTask'
 import StatusBadge from '@/components/ui/StatusBadge'
 import { Calendar, Folder, MessageSquare } from 'lucide-react'
@@ -34,6 +39,15 @@ export default function ModalViewTask({
     queryFn: fetchProjects,
   })
 
+  // Commentaires en direct : on s'abonne à la même query que celle invalidée
+  // après envoi/suppression, pour que la modale se rafraîchisse automatiquement.
+  const { data: tasksData } = useQuery({
+    queryKey: ['project-tasks', task.projectId],
+    queryFn: () => fetchProjectTasks(task.projectId),
+  })
+  const liveTask = tasksData?.data?.tasks.find((t) => t.id === task.id)
+  const comments = liveTask?.comments ?? task.comments
+
   const currentUser = profileData?.data?.user
   const currentProject = projectsData?.data?.projects?.find((p) => p.id === task.projectId)
   const userRole = currentProject?.userRole
@@ -60,10 +74,10 @@ export default function ModalViewTask({
 
   return (
     <>
-      <div className="flex flex-col px-8 pb-6 pt-6">
+      <div className="flex flex-col px-2 pb-6 pt-6 sm:px-8">
         <div className="flex flex-wrap items-center justify-between gap-3 pr-9">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-zinc-900 leading-tight">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 leading-tight break-words min-w-0">
               {task.title}
             </h1>
             <StatusBadge status={task.status} />
@@ -72,7 +86,15 @@ export default function ModalViewTask({
             <button
               onClick={() =>
                 setContentModal(
-                  <ModalEditTask task={task as any} project={currentProject} />
+                  <ModalEditTask
+                    task={task as any}
+                    project={currentProject}
+                    onBack={() =>
+                      setContentModal(
+                        <ModalViewTask task={task} projectName={projectName} />
+                      )
+                    }
+                  />
                 )
               }
               className="text-sm px-4 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-600 transition-colors"
@@ -154,11 +176,11 @@ export default function ModalViewTask({
               Commentaires
             </span>
             <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-zinc-100 px-1.5 text-[11px] font-semibold text-zinc-500">
-              {task.comments.length}
+              {comments.length}
             </span>
           </div>
 
-          {task.comments.length === 0 && (
+          {comments.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-7 mb-4">
               <MessageSquare size={22} className="text-zinc-300" />
               <span className="text-sm text-zinc-400">
@@ -167,45 +189,45 @@ export default function ModalViewTask({
             </div>
           )}
 
-          {task.comments.length > 0 && (
+          {comments.length > 0 && (
             <div className="flex flex-col gap-3 mb-4">
-              {task.comments.map((comment) => (
-                <div key={comment.id} className="flex items-center gap-3">
+              {comments.map((comment) => (
+                <div key={comment.id} className="flex items-start gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold uppercase flex-shrink-0 ${comment.author.email === currentUser?.email ? 'bg-[#D3590B]/10 text-gray-900' : 'bg-zinc-200 text-zinc-600'}`}>
                     {getInitiales(comment.author.name ?? comment.author.email)}
                   </div>
-                  <div className="flex-1 bg-zinc-50 rounded-xl px-3 py-2">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-medium text-zinc-800">
-                        {comment.author.name ?? comment.author.email}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-zinc-400">
+                  <div className="flex-1 min-w-0 bg-zinc-50 rounded-xl px-3 py-2">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <div className="min-w-0 flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                        <p className="text-sm font-medium text-zinc-800 truncate">
+                          {comment.author.name ?? comment.author.email}
+                        </p>
+                        <p className="text-xs text-zinc-400 whitespace-nowrap">
                           {format(new Date(comment.createdAt), 'd MMM, HH:mm', { locale: fr })}
                         </p>
-                        {(comment.author.email === currentUser?.email || canEdit) && (
-                          <div className="relative">
-                            <button
-                              onClick={() => setOpenCommentMenu(openCommentMenu === comment.id ? null : comment.id)}
-                              className="text-zinc-400 hover:text-zinc-600 text-lg leading-none px-1"
-                            >
-                              ···
-                            </button>
-                            {openCommentMenu === comment.id && (
-                              <div className="absolute right-0 top-6 bg-white rounded-xl shadow-lg border p-1 z-50 min-w-[140px]">
-                                <button
-                                  onClick={() => deleteComment(comment.id)}
-                                  className="w-full px-3 py-2 text-sm text-red-500 hover:bg-zinc-100 rounded-lg text-left"
-                                >
-                                  Supprimer
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
                       </div>
+                      {(comment.author.email === currentUser?.email || canEdit) && (
+                        <div className="relative flex-shrink-0">
+                          <button
+                            onClick={() => setOpenCommentMenu(openCommentMenu === comment.id ? null : comment.id)}
+                            className="text-zinc-400 hover:text-zinc-600 text-lg leading-none px-1"
+                          >
+                            ···
+                          </button>
+                          {openCommentMenu === comment.id && (
+                            <div className="absolute right-0 top-6 bg-white rounded-xl shadow-lg border p-1 z-50 min-w-[140px]">
+                              <button
+                                onClick={() => deleteComment(comment.id)}
+                                className="w-full px-3 py-2 text-sm text-red-500 hover:bg-zinc-100 rounded-lg text-left"
+                              >
+                                Supprimer
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <p className="text-sm text-zinc-500">{comment.content}</p>
+                    <p className="text-sm text-zinc-500 break-words">{comment.content}</p>
                   </div>
                 </div>
               ))}
@@ -219,7 +241,7 @@ export default function ModalViewTask({
                 ? getInitiales(currentUser.name ?? currentUser.email)
                 : '?'}
             </div>
-            <div className="flex-1 flex flex-col gap-2">
+            <div className="flex-1 min-w-0 flex flex-col gap-2">
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}

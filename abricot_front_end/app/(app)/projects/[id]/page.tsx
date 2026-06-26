@@ -126,7 +126,7 @@ export default function ProjectPage({
                     modifier
                   </a>
                   {menuOpen && (
-                    <div className="absolute left-0 mt-1 bg-white border rounded-lg shadow-lg z-10 w-48">
+                    <div className="absolute right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 w-48">
                       <button
                         onClick={() => {
                           setMenuOpen(false)
@@ -184,32 +184,34 @@ export default function ProjectPage({
       </div>
 
       {/* Bande Contributeurs */}
-      <div className="mb-9 bg-[#F3F4F6] rounded-xl p-4 mt-6 flex items-center gap-4 flex-wrap">
+      <div className="mb-9 bg-[#F3F4F6] rounded-xl p-4 mt-6 flex flex-col items-start gap-4 md:flex-row md:items-center md:flex-wrap">
         <p className="font-medium text-sm">
           Contributeurs{' '}
           <span className="text-gray-500">
             {(project?.members.length ?? 0) + 1} personnes
           </span>
         </p>
-        <div className="flex justify-end items-center gap-2 flex-wrap flex-1">
-          <div
-            title={`${project?.owner?.name || project?.owner?.email} — Propriétaire`}
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium uppercase ${
-              project?.owner?.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
-            }`}
-          >
-            {project?.owner?.name
-              ? getInitiales(project.owner.name)
-              : getInitiales(project?.owner?.email ?? '')}
+        <div className="flex flex-col items-start gap-2 w-full md:w-auto md:flex-1 md:flex-row md:flex-wrap md:items-center md:justify-end">
+          <div className="flex items-center gap-2">
+            <div
+              title={`${project?.owner?.name || project?.owner?.email} — Propriétaire`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium uppercase flex-shrink-0 ${
+                project?.owner?.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
+              }`}
+            >
+              {project?.owner?.name
+                ? getInitiales(project.owner.name)
+                : getInitiales(project?.owner?.email ?? '')}
+            </div>
+            <RoleBadge role={project?.userRole ?? ''} />
           </div>
-          <RoleBadge role={project?.userRole ?? ''} />
           {project?.members
             .filter((member) => member.user.id !== project?.owner?.id)
             .map((member) => (
               <div key={member.id} className="flex items-center gap-2">
                 <div
                   title={`${member.user.name || member.user.email} — ${roleLabels[member.role] ?? member.role}`}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium uppercase ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium uppercase flex-shrink-0 ${
                     member.user.id === userId ? 'bg-[#FFE8D9]' : 'bg-gray-200'
                   }`}
                 >

@@ -82,7 +82,7 @@ function DraggableCard({
       style={style}
       {...listeners}
       {...attributes}
-      className={`border rounded-lg mb-4 overflow-hidden cursor-grab active:cursor-grabbing touch-none ${isDragging ? 'opacity-30' : ''}`}
+      className={`border rounded-lg mb-4 overflow-hidden cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-30' : ''}`}
     >
       <div className="p-4">
         <TaskCard
@@ -192,7 +192,7 @@ if (!task) return
       {erreur && (
         <p className="text-red-500 text-sm mb-3 text-center">{erreur}</p>
       )}
-      <div className="overflow-x-auto scrollbar-hide">
+      <div className="overflow-x-auto">
         <div className="flex gap-4 min-w-[860px]">
           <DroppableColumn id="TODO" title="À faire" count={todoTask.length}>
             {todoTask.map((task) => (

@@ -88,8 +88,9 @@ export default function ModalCreateProject() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div className="flex flex-col gap-3">
-          <Label>Titre * </Label>
+          <Label htmlFor="project-name">Titre * </Label>
           <Input
+            id="project-name"
             {...register('name')}
             className={`border rounded-lg bg-white h-12 pr-10 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
           />
@@ -99,17 +100,19 @@ export default function ModalCreateProject() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label>Description </Label>
+          <Label htmlFor="project-description">Description </Label>
           <Input
+            id="project-description"
             {...register('description')}
             className="border rounded-lg bg-white h-12 pr-10 "
           />
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label>Contributeurs</Label>
+          <Label htmlFor="project-contributors">Contributeurs</Label>
           <div className="relative">
             <Input
+              id="project-contributors"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setDropdownOpen(true)}
@@ -157,6 +160,7 @@ export default function ModalCreateProject() {
                   </span>
                   <button
                     type="button"
+                    aria-label={`Retirer ${user.name ?? user.email}`}
                     onClick={() => {
                       const newSelected = selectedUsers.filter((u) => u.id !== user.id)
                       setSelectedUsers(newSelected)

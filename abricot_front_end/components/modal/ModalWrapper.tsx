@@ -7,14 +7,16 @@ export default function ModalWrapper() {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-[10px] p-6 md:pt-[79px] md:pb-[79px] md:pl-[73px] md:pr-[73px] w-full max-w-[598px] max-h-[90vh] overflow-y-auto relative mx-4 md:mx-0">
+      <div className="relative bg-white rounded-[10px] w-full max-w-[598px] max-h-[90vh] overflow-hidden mx-4 md:mx-0">
         <button
           onClick={() => setOpenModal(false)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          className="absolute top-4 right-4 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-gray-400 hover:text-gray-600"
         >
           ✕
         </button>
-        {contentModal}
+        <div className="max-h-[90vh] overflow-y-auto p-6 md:pt-[79px] md:pb-[79px] md:pl-[73px] md:pr-[73px]">
+          {contentModal}
+        </div>
       </div>
     </div>
   )

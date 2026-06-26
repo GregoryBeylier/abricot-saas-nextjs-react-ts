@@ -16,6 +16,7 @@ export function getInitiales(name: string) {
 
 // Étiquettes lisibles pour les rôles de projet
 export const roleLabels: Record<string, string> = {
+  OWNER: 'Propriétaire',
   ADMIN: 'Administrateur',
   CONTRIBUTOR: 'Contributeur',
 }

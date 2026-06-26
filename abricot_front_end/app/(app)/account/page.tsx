@@ -143,26 +143,27 @@ export default function Account() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <Label>Prénom</Label>
-            <Input {...register('firstName')} className={`bg-white h-12 ${errors.firstName ? 'border-red-500' : ''}`} />
-            {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName.message}</p>}
+            <Label htmlFor="firstName">Prénom</Label>
+            <Input id="firstName" {...register('firstName')} className={`bg-white h-12 ${errors.firstName ? 'border-red-500' : ''}`} />
+            {errors.firstName && <p className="text-red-600 text-xs">{errors.firstName.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Nom</Label>
-            <Input {...register('lastName')} className={`bg-white h-12 ${errors.lastName ? 'border-red-500' : ''}`} />
-            {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName.message}</p>}
+            <Label htmlFor="lastName">Nom</Label>
+            <Input id="lastName" {...register('lastName')} className={`bg-white h-12 ${errors.lastName ? 'border-red-500' : ''}`} />
+            {errors.lastName && <p className="text-red-600 text-xs">{errors.lastName.message}</p>}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Email</Label>
-            <Input {...register('email')} className="bg-white h-12" />
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" {...register('email')} className="bg-white h-12" />
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Mot de passe actuel</Label>
+            <Label htmlFor="currentPassword">Mot de passe actuel</Label>
             <div className="relative">
               <Input
+                id="currentPassword"
                 {...register('currentPassword')}
                 type={showCurrentPassword ? 'text' : 'password'}
                 className="bg-white h-12 pr-10"
@@ -170,6 +171,11 @@ export default function Account() {
               <button
                 type="button"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                aria-label={
+                  showCurrentPassword
+                    ? 'Masquer le mot de passe'
+                    : 'Afficher le mot de passe'
+                }
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
               >
                 {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -178,9 +184,10 @@ export default function Account() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label>Nouveau Mot de passe</Label>
+            <Label htmlFor="newPassword">Nouveau Mot de passe</Label>
             <div className="relative">
               <Input
+                id="newPassword"
                 {...register('newPassword')}
                 type={showNewPassword ? 'text' : 'password'}
                 className={`bg-white h-12 pr-10 ${errors.newPassword ? 'border-red-500' : ''}`}
@@ -188,13 +195,18 @@ export default function Account() {
               <button
                 type="button"
                 onClick={() => setShowNewPassword(!showNewPassword)}
+                aria-label={
+                  showNewPassword
+                    ? 'Masquer le mot de passe'
+                    : 'Afficher le mot de passe'
+                }
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
               >
                 {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {errors.newPassword && (
-              <p className="text-red-500 text-xs">
+              <p className="text-red-600 text-xs">
                 {errors.newPassword.message}
               </p>
             )}
@@ -204,16 +216,16 @@ export default function Account() {
             type="submit"
             disabled={!isDirty}
             className={`w-full sm:w-fit h-12 px-8 rounded-[10px] transition-colors ${
-              isDirty ? 'bg-[#1F1F1F] text-white' : 'bg-gray-200 text-gray-500'
+              isDirty ? 'bg-[#1F1F1F] text-white' : 'bg-gray-200 text-gray-600'
             }`}
           >
             Modifier les informations
           </Button>
           {erreur && (
-            <p className="text-red-500 text-sm text-center">{erreur}</p>
+            <p className="text-red-600 text-sm text-center">{erreur}</p>
           )}
           {succes && (
-            <p className="text-green-500 text-sm text-center">{succes}</p>
+            <p className="text-green-700 text-sm text-center">{succes}</p>
           )}
         </form>
       </div>

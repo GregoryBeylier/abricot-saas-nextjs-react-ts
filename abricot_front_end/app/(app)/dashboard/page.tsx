@@ -11,7 +11,6 @@ import iconKanban from '@/public/kanban.svg'
 import Image from 'next/image'
 import ModalCreateProject from '@/components/modal/ModalCreateProject'
 import { useModal } from '@/components/providers/ModalProvider'
-import { email } from 'zod'
 
 export default function DashboardPage() {
   // Récupère le profil utilisateur via TanStack Query
@@ -50,7 +49,7 @@ export default function DashboardPage() {
       <div className="flex gap-4 mb-6 mt-[30px] lg:mt-[60px]">
         <button
           onClick={() => setVue('liste')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot)] hover:bg-[#FFE8D9] transition-colors duration-500 ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot-text)] hover:bg-[#FFE8D9] transition-colors duration-500 ${
             vue === 'liste' ? 'bg-[#FFE8D9]' : 'bg-white'
           }`}
         >
@@ -59,7 +58,7 @@ export default function DashboardPage() {
         </button>
         <button
           onClick={() => setVue('kanban')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot)] hover:bg-[#FFE8D9] transition-colors duration-500 ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[var(--color-abricot-text)] hover:bg-[#FFE8D9] transition-colors duration-500 ${
             vue === 'kanban' ? 'bg-[#FFE8D9]' : 'bg-white'
           }`}
         >

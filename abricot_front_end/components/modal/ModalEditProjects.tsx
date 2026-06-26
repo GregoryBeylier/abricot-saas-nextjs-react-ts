@@ -123,8 +123,9 @@ export default function ModalEditProject({ project }: { project: Projects }) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div className="flex flex-col gap-3">
-          <Label>Titre * </Label>
+          <Label htmlFor="edit-project-name">Titre * </Label>
           <Input
+            id="edit-project-name"
             {...register('name')}
             className={`border rounded-lg bg-white h-12 pr-10 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
           />
@@ -134,17 +135,19 @@ export default function ModalEditProject({ project }: { project: Projects }) {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label>Description </Label>
+          <Label htmlFor="edit-project-description">Description </Label>
           <Input
+            id="edit-project-description"
             {...register('description')}
             className="border rounded-lg bg-white h-12 pr-10 "
           />
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label>Contributeurs</Label>
+          <Label htmlFor="edit-project-contributors">Contributeurs</Label>
           <div className="relative">
             <Input
+              id="edit-project-contributors"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setDropdownOpen(true)}
@@ -193,6 +196,7 @@ export default function ModalEditProject({ project }: { project: Projects }) {
                   </span>
                   <button
                     type="button"
+                    aria-label={`Retirer ${user.name ?? user.email}`}
                     onClick={() => {
                       const newSelected = selectedUsers.filter((u) => u.id !== user.id)
                       setSelectedUsers(newSelected)

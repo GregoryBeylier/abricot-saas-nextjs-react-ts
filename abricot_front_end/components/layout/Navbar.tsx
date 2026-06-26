@@ -50,7 +50,7 @@ export default function Header() {
           className={
             pathname.startsWith('/dashboard')
               ? 'group flex items-center gap-2 bg-black text-white px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] transition-all duration-200'
-              : 'group flex items-center gap-2 text-[var(--color-abricot)] px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] hover:bg-black hover:text-white transition-all duration-500'
+              : 'group flex items-center gap-2 text-[var(--color-abricot-text)] px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] hover:bg-black hover:text-white transition-all duration-500'
           }
           href="/dashboard"
         >
@@ -72,7 +72,7 @@ export default function Header() {
           className={
             pathname.startsWith('/projects')
               ? 'group flex items-center gap-2 bg-black text-white px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] transition-all duration-200'
-              : 'group flex items-center gap-2 text-[var(--color-abricot)] px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] hover:bg-black hover:text-white transition-all duration-500'
+              : 'group flex items-center gap-2 text-[var(--color-abricot-text)] px-2 py-2 min-[321px]:px-4 min-[321px]:py-3 lg:px-[32px] lg:py-[27px] rounded-[10px] hover:bg-black hover:text-white transition-all duration-500'
           }
           href="/projects"
         >
@@ -93,18 +93,22 @@ export default function Header() {
 
       <div className="relative">
         {/* Avatar / bouton utilisateur — affiche initiales et ouvre le menu */}
-        <div
+        <button
+          type="button"
           onClick={() => setOpen(!open)}
+          aria-label="Menu utilisateur"
+          aria-expanded={open}
+          aria-haspopup="menu"
           className={`w-[40px] h-[40px] sm:w-[65px] sm:h-[65px] rounded-full flex items-center justify-center uppercase cursor-pointer transition-all ${
             open || pathname.startsWith('/account')
-              ? 'bg-[#D3590B] text-white'
+              ? 'bg-[var(--color-abricot-text)] text-white'
               : 'bg-[#FFE8D9]'
           }`}
         >
           {data?.data?.user?.name
             ? getInitiales(data.data.user.name)
             : data?.data?.user?.email?.slice(0, 2).toUpperCase()}
-        </div>
+        </button>
 
         {open && (
           /* Menu déroulant — contient lien vers le compte et déconnexion */
@@ -123,7 +127,7 @@ export default function Header() {
                 queryClient.clear()
                 router.push('/login')
               }}
-              className="px-4 py-2 text-sm text-red-500 hover:bg-gray-100 rounded-lg text-left"
+              className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-lg text-left"
             >
               Se déconnecter
             </button>

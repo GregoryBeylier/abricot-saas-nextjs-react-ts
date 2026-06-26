@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Trash2, Pencil, Check, X } from 'lucide-react'
+import { Sparkles, Trash2, Pencil, Check, X, Loader2 } from 'lucide-react'
 import { fetchCreateTask, Projects } from '@/lib/api'
 import { useModal } from '@/components/providers/ModalProvider'
 import { useQueryClient } from '@tanstack/react-query'
@@ -159,6 +159,16 @@ export default function ModalIATasks({ project, tasks: initialTasks }: Props) {
         ))}
       </div>
 
+      {loadingMore && (
+        <div className="flex items-center justify-center gap-2 py-4 text-sm text-gray-500">
+          <Loader2
+            size={18}
+            className="text-[var(--color-abricot)] animate-spin"
+          />
+          Génération des tâches en cours…
+        </div>
+      )}
+
       {erreur && <p className="text-red-500 text-sm mt-3">{erreur}</p>}
 
       <Button
@@ -174,8 +184,9 @@ export default function ModalIATasks({ project, tasks: initialTasks }: Props) {
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Décrivez les tâches que vous souhaitez ajouter..."
-          className="flex-1 bg-transparent resize-none outline-none text-sm text-gray-700 placeholder:text-gray-400 min-h-[40px] max-h-[80px]"
+          disabled={loadingMore}
+          placeholder="Saisir un prompt..."
+          className="flex-1 min-w-0 bg-transparent resize-none outline-none text-sm text-gray-700 placeholder:text-gray-400 min-h-[40px] max-h-[80px] disabled:opacity-60"
           rows={1}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {

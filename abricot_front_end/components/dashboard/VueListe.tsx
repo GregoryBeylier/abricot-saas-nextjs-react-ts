@@ -56,6 +56,7 @@ export default function VueListe() {
         </div>
         <div className="relative w-full lg:w-auto">
           <Input
+            aria-label="Rechercher une tâche"
             placeholder="Rechercher une tâche"
             className="w-full lg:w-[357px] h-[53px] rounded-[8px] border px-[32px] py-[23px] bg-white"
             value={search}

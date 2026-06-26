@@ -81,6 +81,8 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --color-abricot: #d4520a;
+  /* Variante foncée pour l'orange utilisé en TEXTE sur fond clair (contraste AA >= 4.5:1) */
+  --color-abricot-text: #a8420a;
   --font-size-title: 2rem;
 }
 

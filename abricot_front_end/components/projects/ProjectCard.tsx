@@ -34,13 +34,20 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             <span>{progression}%</span>
             <span>Progression</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div
+            role="progressbar"
+            aria-valuenow={progression}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`Progression du projet : ${progression}%`}
+            className="w-full bg-gray-200 rounded-full h-1.5"
+          >
             <div
               className="bg-[#D3590B] h-1.5 rounded-full"
               style={{ width: `${progression}%` }}
             />
           </div>
-          <p className="text-xs text-gray-400 mt-1 mb-10">
+          <p className="text-xs text-gray-500 mt-1 mb-10">
             {completed} / {total} tâches terminées
           </p>
         </div>

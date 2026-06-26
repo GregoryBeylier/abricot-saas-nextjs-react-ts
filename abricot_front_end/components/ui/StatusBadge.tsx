@@ -16,12 +16,14 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
 
   // mapping pour les couleurs des états des tâches
   const statusColors = {
-    TODO: 'bg-red-100 text-red-400',
-    IN_PROGRESS: 'bg-orange-100 text-orange-400',
-    DONE: 'bg-green-100 text-green-400',
+    TODO: 'bg-red-100 text-red-700',
+    IN_PROGRESS: 'bg-orange-100 text-orange-700',
+    DONE: 'bg-green-100 text-green-700',
   }
   return (
-    <span className={`rounded-full px-3 py-1 text-xs ${statusColors[status]}`}>
+    <span
+      className={`inline-block flex-shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-xs ${statusColors[status]}`}
+    >
       {statusLabels[status]}
     </span>
   )

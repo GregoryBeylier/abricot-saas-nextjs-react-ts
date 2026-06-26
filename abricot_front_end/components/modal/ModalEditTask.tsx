@@ -13,7 +13,7 @@ import { useModal } from '@/components/providers/ModalProvider'
 import { Label } from '../ui/label'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ArrowLeft } from 'lucide-react'
 import { getInitiales } from '@/lib/utils'
 
 const schema = z.object({
@@ -29,9 +29,14 @@ type Input = z.infer<typeof schema>
 interface ModalEditTaskProps {
   task: ProjectTask
   project: Projects
+  onBack?: () => void
 }
 
-export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
+export default function ModalEditTask({
+  task,
+  project,
+  onBack,
+}: ModalEditTaskProps) {
   // useState pour gerer les message d'erreur et de reussite
   const [erreur, setErreur] = useState('')
   // On construit la liste complète des membres potentiels : members + owner si absent
@@ -93,12 +98,25 @@ export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
 
   return (
     <>
-      <h1 className="font-semibold text-xl mb-8">Modifier une tâche</h1>
+      <div className="flex items-center gap-3 mb-8">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Retour à la vue de la tâche"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 flex-shrink-0"
+          >
+            <ArrowLeft size={16} />
+          </button>
+        )}
+        <h1 className="font-semibold text-xl">Modifier une tâche</h1>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
         <div className="flex flex-col gap-3">
-          <Label>Titre * </Label>
+          <Label htmlFor="edit-task-title">Titre * </Label>
           <Input
+            id="edit-task-title"
             {...register('title')}
             className={`border rounded-lg bg-white h-12 pr-10 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
           />
@@ -108,16 +126,18 @@ export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label>Description </Label>
+          <Label htmlFor="edit-task-description">Description </Label>
           <Input
+            id="edit-task-description"
             {...register('description')}
             className="border rounded-lg bg-white h-12 pr-10"
           />
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label>Échéance </Label>
+          <Label htmlFor="edit-task-dueDate">Échéance </Label>
           <Input
+            id="edit-task-dueDate"
             type="date"
             {...register('dueDate')}
             className="border rounded-lg bg-white h-12 pr-10"
@@ -125,9 +145,10 @@ export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Label>Assigné à :</Label>
+          <Label htmlFor="edit-task-assignees">Assigné à :</Label>
           <div className="relative">
             <Input
+              id="edit-task-assignees"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setDropdownOpen(true)}
@@ -181,6 +202,7 @@ export default function ModalEditTask({ task, project }: ModalEditTaskProps) {
                   </span>
                   <button
                     type="button"
+                    aria-label={`Retirer ${user.user.name ?? user.user.email}`}
                     onClick={() => {
                       const newSelected = selectedUsers.filter((u) => u.user.id !== user.user.id)
                       setSelectedUsers(newSelected)
