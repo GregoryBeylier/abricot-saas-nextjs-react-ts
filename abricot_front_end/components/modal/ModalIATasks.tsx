@@ -59,7 +59,9 @@ export default function ModalIATasks({ project, tasks: initialTasks }: Props) {
       })
       const data = await res.json()
       if (data.error || !Array.isArray(data.tasks) || data.tasks.length === 0) {
-        setErreur("L'IA n'a pas pu générer les tâches, reformulez votre demande.")
+        setErreur(
+          "L'IA n'a pas pu générer les tâches, reformulez votre demande."
+        )
         return
       }
       setTasks((prev) => [...prev, ...data.tasks])
@@ -127,7 +129,7 @@ export default function ModalIATasks({ project, tasks: initialTasks }: Props) {
                   </button>
                   <button
                     onClick={() => setEditingIndex(null)}
-                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
+                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
                   >
                     <X size={14} /> Annuler
                   </button>
@@ -138,10 +140,10 @@ export default function ModalIATasks({ project, tasks: initialTasks }: Props) {
               <>
                 <p className="font-semibold text-sm mb-1">{task.title}</p>
                 <p className="text-sm text-gray-500 mb-3">{task.description}</p>
-                <div className="flex items-center gap-3 text-xs text-gray-400">
+                <div className="flex items-center gap-3 text-xs text-gray-500">
                   <button
                     onClick={() => handleDelete(index)}
-                    className="flex items-center gap-1 hover:text-red-500 transition-colors"
+                    className="flex items-center gap-1 hover:text-red-600 transition-colors"
                   >
                     <Trash2 size={13} /> Supprimer
                   </button>
@@ -169,7 +171,7 @@ export default function ModalIATasks({ project, tasks: initialTasks }: Props) {
         </div>
       )}
 
-      {erreur && <p className="text-red-500 text-sm mt-3">{erreur}</p>}
+      {erreur && <p className="text-red-600 text-sm mt-3">{erreur}</p>}
 
       <Button
         onClick={handleAddAll}
@@ -186,6 +188,7 @@ export default function ModalIATasks({ project, tasks: initialTasks }: Props) {
           onChange={(e) => setPrompt(e.target.value)}
           disabled={loadingMore}
           placeholder="Saisir un prompt..."
+          aria-label="Saisir un prompt..."
           className="flex-1 min-w-0 bg-transparent resize-none outline-none text-sm text-gray-700 placeholder:text-gray-400 min-h-[40px] max-h-[80px] disabled:opacity-60"
           rows={1}
           onKeyDown={(e) => {
@@ -198,9 +201,10 @@ export default function ModalIATasks({ project, tasks: initialTasks }: Props) {
         <button
           onClick={handleGenerateMore}
           disabled={!prompt.trim() || loadingMore}
+          aria-label="Générer les tâches"
           className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
             prompt.trim() && !loadingMore
-              ? 'bg-[var(--color-abricot)] text-white'
+              ? 'bg-[var(--color-abricot-text)] text-white'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >

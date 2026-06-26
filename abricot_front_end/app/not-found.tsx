@@ -34,6 +34,7 @@ export default function NotFound() {
           viewBox="0 0 636 324"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
         >
           <g id="OBJECTS">
             <g id="Group">
@@ -142,12 +143,12 @@ export default function NotFound() {
       <h2 className="text-[28px] font-bold text-[#2F1829] mt-8 text-center">
         Oups ! Page introuvable
       </h2>
-      <p className="text-base text-gray-400 mt-2 text-center">
+      <p className="text-base text-gray-500 mt-2 text-center">
         La page que vous cherchez n'existe pas.
       </p>
       <Link
         href="/dashboard"
-        className="mt-6 px-8 py-3 bg-[#D3590B] text-white rounded-lg text-sm font-medium hover:bg-[#b84a09] transition-colors"
+        className="mt-6 px-8 py-3 bg-[var(--color-abricot-text)] text-white rounded-lg text-sm font-medium hover:bg-[#b84a09] transition-colors"
       >
         Retour à l'accueil
       </Link>

@@ -108,7 +108,7 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
             className={`border rounded-lg bg-white h-12 pr-10 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
           />
           {errors.title && (
-            <p className="text-red-500 text-sm">{errors.title?.message}</p>
+            <p className="text-red-600 text-sm">{errors.title?.message}</p>
           )}
         </div>
 
@@ -137,15 +137,29 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
             <Input
               id="task-assignees"
               value={query}
+              role="combobox"
+              aria-expanded={dropdownOpen}
+              aria-controls="create-task-assignees-listbox"
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
               onChange={(e) => setQuery(e.target.value)}
               onFocus={() => setDropdownOpen(true)}
-              onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
+              onBlur={(e) => {
+                const related = e.relatedTarget as HTMLElement | null
+                if (related?.getAttribute('role') === 'option') return
+                setTimeout(() => setDropdownOpen(false), 150)
+              }}
               placeholder="Choisir un ou plusieurs collaborateurs"
               className="border rounded-lg bg-white h-12 pr-10"
             />
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             {dropdownOpen && (
-              <div className="absolute z-10 w-full bg-white border rounded-lg shadow-lg top-full max-h-48 overflow-y-auto">
+              <div
+                id="create-task-assignees-listbox"
+                role="listbox"
+                aria-label="Collaborateurs disponibles"
+                className="absolute z-10 w-full bg-white border rounded-lg shadow-lg top-full max-h-48 overflow-y-auto"
+              >
                 {project.members
                   .filter(
                     (member) =>
@@ -157,7 +171,14 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
                   .map((member) => (
                     <div
                       key={member.id}
+                      role="option"
+                      aria-selected={false}
+                      tabIndex={0}
                       className="flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-gray-50"
+                      onBlur={(e) => {
+                        const related = e.relatedTarget as HTMLElement | null
+                        if (related?.getAttribute('role') !== 'option') setDropdownOpen(false)
+                      }}
                       onMouseDown={() => {
                         const newSelected = [...selectedUsers, member]
                         setSelectedUsers(newSelected)
@@ -165,6 +186,17 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
                         setQuery('')
                         setErreur('')
                         setDropdownOpen(false)
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          const newSelected = [...selectedUsers, member]
+                          setSelectedUsers(newSelected)
+                          setValue('assigneeIds', newSelected.map((u) => u.user.id))
+                          setQuery('')
+                          setErreur('')
+                          setDropdownOpen(false)
+                        }
                       }}
                     >
                       <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium uppercase flex-shrink-0">
@@ -176,7 +208,7 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
               </div>
             )}
           </div>
-          {erreur && <p className="text-red-500 text-sm">{erreur}</p>}
+          {erreur && <p className="text-red-600 text-sm">{erreur}</p>}
           {selectedUsers.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {selectedUsers.map((user) => (
@@ -195,7 +227,7 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
                       setSelectedUsers(newSelected)
                       setValue('assigneeIds', newSelected.map((u) => u.user.id))
                     }}
-                    className="text-gray-400 hover:text-gray-600 text-xs ml-1"
+                    className="text-gray-600 hover:text-gray-900 text-xs ml-1"
                   >
                     ✕
                   </button>
@@ -211,7 +243,7 @@ export default function ModalCreateTask({ project }: { project: Projects }) {
           className={`w-fit h-12 px-8 rounded-[10px] transition-colors ${
             watch('title')
               ? 'bg-[#1F1F1F] text-white'
-              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-gray-200 text-gray-600 cursor-not-allowed'
           }`}
         >
           Ajouter une tâche

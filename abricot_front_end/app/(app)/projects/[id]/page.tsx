@@ -96,7 +96,7 @@ export default function ProjectPage({
         </p>
         <button
           onClick={() => router.push('/projects')}
-          className="text-[var(--color-abricot)] underline text-sm"
+          className="text-[var(--color-abricot-text)] underline text-sm"
         >
           Retour aux projets
         </button>
@@ -109,6 +109,7 @@ export default function ProjectPage({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <button
             onClick={() => router.back()}
+            aria-label="Retour"
             className="w-10 h-10 rounded-full border bg-white flex items-center justify-center hover:shadow-sm"
           >
             <ArrowLeft size={18} />
@@ -119,12 +120,15 @@ export default function ProjectPage({
               {(project?.owner?.id === userId ||
                 project?.userRole === 'ADMIN') && (
                 <div className="relative">
-                  <a
+                  <button
+                    type="button"
                     onClick={() => setMenuOpen(!menuOpen)}
-                    className="text-sm text-[var(--color-abricot)] underline cursor-pointer"
+                    aria-expanded={menuOpen}
+                    aria-haspopup="menu"
+                    className="text-sm text-[var(--color-abricot-text)] underline"
                   >
                     modifier
-                  </a>
+                  </button>
                   {menuOpen && (
                     <div className="absolute right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 w-48">
                       <button
@@ -145,7 +149,7 @@ export default function ProjectPage({
                             setMenuOpen(false)
                             deleteProject()
                           }}
-                          className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-gray-50"
+                          className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-gray-50"
                         >
                           Supprimer le projet
                         </button>
@@ -170,7 +174,7 @@ export default function ProjectPage({
             Créer une tâche
           </Button>
           <Button
-            className="h-[50px] px-[30px] rounded-[10px] bg-[#D3590B] text-white flex items-center gap-2 w-full sm:w-auto justify-center"
+            className="h-[50px] px-[30px] rounded-[10px] bg-[var(--color-abricot-text)] text-white flex items-center gap-2 w-full sm:w-auto justify-center"
             onClick={() => {
               if (!project) return
               setContentModal(<ModalIAPrompt project={project} />)
@@ -235,11 +239,11 @@ export default function ProjectPage({
             <p className="text-sm text-gray-500">Par ordre de priorité</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center w-full md:w-auto">
-            <button className="flex items-center gap-2 bg-[#FFE8D9] text-[#D3590B] px-4 py-3 rounded-lg text-sm">
+            <button className="flex items-center gap-2 bg-[#FFE8D9] text-[var(--color-abricot-text)] px-4 py-3 rounded-lg text-sm">
               <CheckSquare size={16} />
               Liste
             </button>
-            <button className="flex items-center gap-2 text-[#D3590B] px-4 py-3 rounded-lg text-sm">
+            <button className="flex items-center gap-2 text-[var(--color-abricot-text)] px-4 py-3 rounded-lg text-sm">
               <CalendarDays size={16} />
               Calendrier
             </button>
@@ -247,10 +251,13 @@ export default function ProjectPage({
               <button
                 type="button"
                 onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
-                onBlur={() => setTimeout(() => setStatusDropdownOpen(false), 150)}
+                onBlur={() =>
+                  setTimeout(() => setStatusDropdownOpen(false), 150)
+                }
                 className="flex items-center gap-2 border rounded-lg px-4 py-3 text-sm text-gray-500 bg-white whitespace-nowrap"
               >
-                {statusOptions.find((o) => o.value === statusFiltre)?.label ?? 'Statut'}
+                {statusOptions.find((o) => o.value === statusFiltre)?.label ??
+                  'Statut'}
                 <ChevronDown size={16} className="text-gray-400" />
               </button>
               {statusDropdownOpen && (
@@ -263,7 +270,7 @@ export default function ProjectPage({
                         setStatusFiltre(option.value)
                         setStatusDropdownOpen(false)
                       }}
-                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${statusFiltre === option.value ? 'text-[#D3590B] font-medium' : 'text-gray-600'}`}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${statusFiltre === option.value ? 'text-[var(--color-abricot-text)] font-medium' : 'text-gray-600'}`}
                     >
                       {option.label}
                     </button>
@@ -274,6 +281,7 @@ export default function ProjectPage({
             <div className="flex items-center gap-2 border rounded-lg px-4 py-3 w-full max-w-[480px]">
               <input
                 placeholder="Rechercher une tâche"
+                aria-label="Rechercher une tâche"
                 className="text-sm outline-none bg-transparent flex-1"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

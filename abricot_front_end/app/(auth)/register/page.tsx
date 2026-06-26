@@ -94,26 +94,28 @@ export default function Register() {
         className="w-full max-w-sm flex flex-col gap-6 mb-8"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <h1 className="text-3xl font-bold text-[var(--color-abricot)] text-center mt-8 md:mt-12 ">
+        <h1 className="text-3xl font-bold text-[var(--color-abricot-text)] text-center mt-8 md:mt-12 ">
           Inscription
         </h1>
 
         <div className="max-w-xs mx-auto w-full flex flex-col gap-3">
-          <Label>Email</Label>
+          <Label htmlFor="email">Email</Label>
           <Input
+            id="email"
             {...register('email')}
             type="email"
             className={`bg-white h-12 ${errors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
           />
           {errors.email && (
-            <p className="text-red-500 text-sm">{errors.email?.message}</p>
+            <p className="text-red-600 text-sm">{errors.email?.message}</p>
           )}
         </div>
 
         <div className="max-w-xs mx-auto w-full flex flex-col gap-3">
-          <Label>Mot de passe</Label>
+          <Label htmlFor="password">Mot de passe</Label>
           <div className="relative">
             <Input
+              id="password"
               {...register('password')}
               type={showPassword ? 'text' : 'password'}
               className={`bg-white h-12 ${errors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
@@ -123,6 +125,11 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
+              aria-label={
+                showPassword
+                  ? 'Masquer le mot de passe'
+                  : 'Afficher le mot de passe'
+              }
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -132,7 +139,7 @@ export default function Register() {
             {passwordRules.map((rule) => (
               <li
                 key={rule.label}
-                className={`text-xs flex items-center gap-2 ${rule.valid ? 'text-green-500' : 'text-gray-400'}`}
+                className={`text-xs flex items-center gap-2 ${rule.valid ? 'text-green-700' : 'text-gray-500'}`}
               >
                 <span>{rule.valid ? '✓' : '✗'}</span>
                 {rule.label}
@@ -141,22 +148,18 @@ export default function Register() {
           </ul>}
         </div>
 
-        <Button
-          className="w-3/4 mx-auto h-14 rounded-lg"
-          type="submit"
-          onClick={() => console.log('errors:', errors)}
-        >
+        <Button className="w-3/4 mx-auto h-14 rounded-lg" type="submit">
           S’inscrire
         </Button>
         {/* Affiche le message d'erreur retourné par l'API */}
         {erreur && (
-          <p className="text-red-500 text-sm w-full text-center">{erreur}</p>
+          <p className="text-red-600 text-sm w-full text-center">{erreur}</p>
         )}
       </form>
 
       <span className="text-sm text-center px-4">
         Déjà inscrit ?{' '}
-        <a href="/login" className="text-[var(--color-abricot)] underline">
+        <a href="/login" className="text-[var(--color-abricot-text)] underline">
           Se connecter
         </a>
       </span>

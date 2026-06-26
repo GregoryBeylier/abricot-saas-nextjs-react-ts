@@ -28,7 +28,9 @@ export default function ModalIAPrompt({ project }: { project: Projects }) {
       const data = await res.json()
 
       if (data.error || !Array.isArray(data.tasks) || data.tasks.length === 0) {
-        setErreur("L'IA n'a pas pu générer les tâches, reformulez votre demande.")
+        setErreur(
+          "L'IA n'a pas pu générer les tâches, reformulez votre demande."
+        )
         return
       }
 
@@ -61,11 +63,11 @@ export default function ModalIAPrompt({ project }: { project: Projects }) {
             </p>
           </>
         ) : erreur ? (
-          <p className="text-red-500 text-sm">{erreur}</p>
+          <p className="text-red-600 text-sm">{erreur}</p>
         ) : (
           <>
             <Sparkles size={40} className="text-[var(--color-abricot)]/30" />
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-500">
               Décrivez ce que vous voulez accomplir, l'IA vous proposera une
               liste de tâches.
             </p>
@@ -80,6 +82,7 @@ export default function ModalIAPrompt({ project }: { project: Projects }) {
           onChange={(e) => setPrompt(e.target.value)}
           disabled={loading}
           placeholder="Saisir un prompt..."
+          aria-label="Saisir un prompt..."
           className="flex-1 min-w-0 bg-transparent resize-none outline-none text-sm text-gray-700 placeholder:text-gray-400 min-h-[40px] max-h-[120px] disabled:opacity-60"
           rows={2}
           onKeyDown={(e) => {
@@ -92,9 +95,10 @@ export default function ModalIAPrompt({ project }: { project: Projects }) {
         <button
           onClick={handleGenerate}
           disabled={!prompt.trim() || loading}
+          aria-label="Générer les tâches"
           className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
             prompt.trim() && !loading
-              ? 'bg-[var(--color-abricot)] text-white'
+              ? 'bg-[var(--color-abricot-text)] text-white'
               : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}
         >

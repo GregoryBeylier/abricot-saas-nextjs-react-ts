@@ -88,13 +88,15 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
             </div>
           ))}
         </div>
-        <div
-          className="border-t pt-3 flex justify-between items-center cursor-pointer"
+        <button
+          type="button"
+          className="border-t pt-3 flex w-full justify-between items-center text-left"
           onClick={() => setOpen(!open)}
+          aria-expanded={open}
         >
           Commentaires ({task.comments.length})
           {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </div>
+        </button>
         {open && (
           <div className="mt-3 flex flex-col gap-3">
             {task.comments.map((comment) => (
@@ -108,7 +110,7 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
                       <p className="text-sm font-medium text-zinc-800 truncate">
                         {comment.author.name ?? comment.author.email}
                       </p>
-                      <p className="text-xs text-gray-400 whitespace-nowrap">
+                      <p className="text-xs text-gray-500 whitespace-nowrap">
                         {format(new Date(comment.createdAt), 'd MMM, HH:mm', { locale: fr })}
                       </p>
                     </div>
@@ -116,7 +118,8 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
                       <div className="relative flex-shrink-0">
                         <button
                           onClick={() => setOpenCommentMenu(openCommentMenu === comment.id ? null : comment.id)}
-                          className="text-gray-400 hover:text-gray-600 text-lg leading-none px-1"
+                          aria-label="Options du commentaire"
+                          className="text-gray-600 hover:text-gray-900 text-lg leading-none px-1"
                         >
                           ···
                         </button>
@@ -124,7 +127,7 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
                           <div className="absolute right-0 top-6 bg-white rounded-xl shadow-lg border p-1 z-50 min-w-[140px]">
                             <button
                               onClick={() => deleteComment(comment.id)}
-                              className="w-full px-3 py-2 text-sm text-red-500 hover:bg-gray-100 rounded-lg text-left"
+                              className="w-full px-3 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-lg text-left"
                             >
                               Supprimer
                             </button>
@@ -154,7 +157,7 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
                 <button
                   onClick={() => sendComment()}
                   disabled={!commentContent.trim() || isSending}
-                  className="self-end px-5 py-2 rounded-xl bg-gray-200 text-gray-500 text-sm font-medium disabled:opacity-50 enabled:bg-[#1F1F1F] enabled:text-white transition-colors"
+                  className="self-end px-5 py-2 rounded-xl bg-gray-200 text-gray-600 text-sm font-medium disabled:opacity-50 enabled:bg-[#1F1F1F] enabled:text-white transition-colors"
                 >
                   {isSending ? 'Envoi...' : 'Envoyer'}
                 </button>
@@ -166,6 +169,9 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
       <div className="absolute top-4 right-4 md:relative md:top-auto md:right-auto">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Options de la tâche"
+          aria-expanded={menuOpen}
+          aria-haspopup="menu"
           className="w-8 h-8 rounded-lg border flex items-center justify-center flex-shrink-0"
         >
           <MoreHorizontal size={16} />
@@ -192,7 +198,7 @@ export default function TaskRow({ task, project, userRole }: TaskRowProps) {
               onClick={() => {
                 mutateRemoveProject()
               }}
-              className="px-4 py-2 text-sm text-red-500 hover:bg-gray-100 rounded-lg text-left"
+              className="px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-lg text-left"
             >
               Supprimer la tâche
             </button>

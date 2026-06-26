@@ -17,6 +17,7 @@ import {
   useDraggable,
   PointerSensor,
   TouchSensor,
+  KeyboardSensor,
   useSensor,
   useSensors,
   closestCenter,
@@ -151,7 +152,8 @@ export default function VueKanban() {
     },
   })
 
-  // PointerSensor pour desktop, TouchSensor pour mobile
+  // PointerSensor pour desktop, TouchSensor pour mobile,
+  // KeyboardSensor pour une alternative clavier au glisser-déposer (WCAG).
   // distance: 10 évite les drags accidentels sur les clics de boutons
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -159,7 +161,8 @@ export default function VueKanban() {
     }),
     useSensor(TouchSensor, {
       activationConstraint: { delay: 250, tolerance: 8 },
-    })
+    }),
+    useSensor(KeyboardSensor)
   )
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -190,7 +193,7 @@ if (!task) return
       onDragEnd={handleDragEnd}
     >
       {erreur && (
-        <p className="text-red-500 text-sm mb-3 text-center">{erreur}</p>
+        <p className="text-red-600 text-sm mb-3 text-center">{erreur}</p>
       )}
       <div className="overflow-x-auto">
         <div className="flex gap-4 min-w-[860px]">
